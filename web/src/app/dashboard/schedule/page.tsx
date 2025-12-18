@@ -32,7 +32,7 @@ export default function SchedulePage() {
             // In a real app we would filter by date range.
             // For MVP we fetch all and filter in frontend or use the API filter if implemented.
             // Our API currently returns all sorted by date.
-            const res = await fetch("/api/appointments");
+            const res = await fetch(`/api/appointments?t=${new Date().getTime()}`);
             const allAppointments = await res.json();
 
             // Filter for current date

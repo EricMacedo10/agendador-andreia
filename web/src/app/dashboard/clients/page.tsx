@@ -29,7 +29,7 @@ export default function ClientsPage() {
 
     const fetchClients = async () => {
         try {
-            const res = await fetch("/api/clients");
+            const res = await fetch(`/api/clients?t=${new Date().getTime()}`);
             const data = await res.json();
             setClients(data);
         } catch (error) {
