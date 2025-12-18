@@ -1,0 +1,30 @@
+
+> web@0.1.0 build
+> next build
+
+   Ôû▓ Next.js 16.0.8 (Turbopack)
+   - Environments: .env
+
+ ÔÜá The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+   Creating an optimized production build ...
+ Ô£ô Compiled successfully in 24.1s
+   Running TypeScript ...
+Failed to compile.
+
+.next/dev/types/validator.ts:180:31
+Type error: Type 'typeof import("C:/Users/ericm/OneDrive/\u00C1rea de Trabalho/PESSOAL/Agendador Andreia/web/src/app/api/clients/[id]/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/clients/[id]">'.
+  Types of property 'GET' are incompatible.
+    Type '(request: Request, { params }: { params: { id: string; }; }) => Promise<NextResponse<{ error: string; }> | NextResponse<{ appointments: { id: string; createdAt: Date; updatedAt: Date; ... 7 more ...; paidPrice: Decimal | null; }[]; } & { ...; }>>' is not assignable to type '(request: NextRequest, context: { params: Promise<{ id: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ id: string; }>; }' is not assignable to type '{ params: { id: string; }; }'.
+          Types of property 'params' are incompatible.
+            Property 'id' is missing in type 'Promise<{ id: string; }>' but required in type '{ id: string; }'.
+
+  178 |   type __IsExpected<Specific extends RouteHandlerConfig<"/api/clients/[id]">> = Specific
+  179 |   const handler = {} as typeof import("../../../src/app/api/clients/[id]/route.js")
+> 180 |   type __Check = __IsExpected<typeof handler>
+      |                               ^
+  181 |   // @ts-ignore
+  182 |   type __Unused = __Check
+  183 | }
+Next.js build worker exited with code: 1 and signal: null

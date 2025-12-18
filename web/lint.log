@@ -1,0 +1,306 @@
+
+> web@0.1.0 lint
+> eslint
+
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\actions\clients.ts
+   8:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\appointments\[id]\route.ts
+  16:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  47:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\appointments\route.ts
+   6:13  warning  'searchParams' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  56:21  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\clients\[id]\route.ts
+  22:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\clients\route.ts
+  10:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  35:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\dashboard\reminders\route.ts
+  30:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\financial\route.ts
+  5:27  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\services\[id]\route.ts
+  27:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  46:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\services\route.ts
+  17:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\settings\route.ts
+  17:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  44:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\users\[id]\route.ts
+  11:5   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  28:14  warning  'error' is defined but never used                                                                                    @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\api\users\route.ts
+   6:27  warning  'req' is defined but never used                                                                                      @typescript-eslint/no-unused-vars
+   8:5   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  29:5   error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  57:14  warning  'error' is defined but never used                                                                                    @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\book\page.tsx
+    8:10  warning  'Check' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+    8:41  warning  'Clock' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+   48:13  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\book\page.tsx:48:13
+  46 |     useEffect(() => {
+  47 |         if (selectedService && selectedDate) {
+> 48 |             setLoadingSlots(true);
+     |             ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  49 |             const dateStr = format(selectedDate, "yyyy-MM-dd");
+  50 |             fetch(`/api/slots?date=${dateStr}&serviceId=${selectedService.id}`)
+  51 |                 .then(r => r.json())                                                                                                                                                                                                                                                           react-hooks/set-state-in-effect
+  139:29  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @next/next/no-img-element
+  286:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @next/next/no-img-element
+  306:42  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\book\page.tsx:306:42
+  304 |             {/* Content */}
+  305 |             <div className="p-4 max-w-md mx-auto">
+> 306 |                 {step === "services" && <ServiceSelection />}
+      |                                          ^^^^^^^^^^^^^^^^ This component is created during render
+  307 |                 {step === "datetime" && <DateTimeSelection />}
+  308 |                 {step === "info" && <InfoSelection />}
+  309 |                 {step === "review" && <ReviewStep />}
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\book\page.tsx:128:30
+  126 |     // --- Components for Steps ---
+  127 |
+> 128 |     const ServiceSelection = () => (
+      |                              ^^^^^^^
+> 129 |         <div className="space-y-4">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 130 |             <h2 className="text-xl font-bold text-white mb-4">Escolha o Servi├ºo</h2>
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 153 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 154 |     );
+      | ^^^^^^ The component is created during render here
+  155 |
+  156 |     const DateTimeSelection = () => (
+  157 |         <div className="space-y-6">  react-hooks/static-components
+  307:42  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\book\page.tsx:307:42
+  305 |             <div className="p-4 max-w-md mx-auto">
+  306 |                 {step === "services" && <ServiceSelection />}
+> 307 |                 {step === "datetime" && <DateTimeSelection />}
+      |                                          ^^^^^^^^^^^^^^^^^ This component is created during render
+  308 |                 {step === "info" && <InfoSelection />}
+  309 |                 {step === "review" && <ReviewStep />}
+  310 |             </div>
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\book\page.tsx:156:31
+  154 |     );
+  155 |
+> 156 |     const DateTimeSelection = () => (
+      |                               ^^^^^^^
+> 157 |         <div className="space-y-6">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 158 |             <h2 className="text-xl font-bold text-white mb-4">Data e Hora</h2>
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 212 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 213 |     );
+      | ^^^^^^ The component is created during render here
+  214 |
+  215 |     const InfoSelection = () => (
+  216 |         <div className="space-y-6">                                               react-hooks/static-components
+  308:38  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\book\page.tsx:308:38
+  306 |                 {step === "services" && <ServiceSelection />}
+  307 |                 {step === "datetime" && <DateTimeSelection />}
+> 308 |                 {step === "info" && <InfoSelection />}
+      |                                      ^^^^^^^^^^^^^ This component is created during render
+  309 |                 {step === "review" && <ReviewStep />}
+  310 |             </div>
+  311 |         </div>
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\book\page.tsx:215:27
+  213 |     );
+  214 |
+> 215 |     const InfoSelection = () => (
+      |                           ^^^^^^^
+> 216 |         <div className="space-y-6">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 217 |             <h2 className="text-xl font-bold text-white mb-4">Seus Dados</h2>
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 249 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 250 |     );
+      | ^^^^^^ The component is created during render here
+  251 |
+  252 |     const ReviewStep = () => (
+  253 |         <div className="space-y-6">                                                                                                       react-hooks/static-components
+  309:40  error    Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\book\page.tsx:309:40
+  307 |                 {step === "datetime" && <DateTimeSelection />}
+  308 |                 {step === "info" && <InfoSelection />}
+> 309 |                 {step === "review" && <ReviewStep />}
+      |                                        ^^^^^^^^^^ This component is created during render
+  310 |             </div>
+  311 |         </div>
+  312 |     );
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\book\page.tsx:252:24
+  250 |     );
+  251 |
+> 252 |     const ReviewStep = () => (
+      |                        ^^^^^^^
+> 253 |         <div className="space-y-6">
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 254 |             <h2 className="text-xl font-bold text-white mb-4">Confirmar Agendamento</h2>
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 289 |         </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 290 |     );
+      | ^^^^^^ The component is created during render here
+  291 |
+  292 |     return (
+  293 |         <div className="min-h-screen bg-black text-zinc-100">                                                                                                                                                  react-hooks/static-components
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\dashboard\clients\[id]\page.tsx
+   5:31  warning  'User' is defined but never used                      @typescript-eslint/no-unused-vars
+  32:11  warning  'nextAppointment' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\dashboard\financial\page.tsx
+    7:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   92:93  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  125:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\dashboard\schedule\page.tsx
+  23:12  warning  'isLoading' is assigned a value but never used                                                                        @typescript-eslint/no-unused-vars
+  27:8   warning  React Hook useEffect has a missing dependency: 'fetchAppointments'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\dashboard\services\page.tsx
+  119:18  warning  'err' is defined but never used                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+  170:33  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  226:45  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\dashboard\settings\actions.ts
+  22:54  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\dashboard\settings\users\page.tsx
+  63:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  79:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\app\settings\page.tsx
+   8:12   warning  'loading' is assigned a value but never used                     @typescript-eslint/no-unused-vars
+  50:84   error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  50:106  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\auth.ts
+  45:17  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  53:17  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\components\new-appointment-modal.tsx
+   15:25  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   21:12  warning  'isLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  123:25  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\components\payment-reminder.tsx
+  20:9   error    Error: Cannot access variable before it is declared
+
+`checkPending` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\components\payment-reminder.tsx:20:9
+  18 |         }
+  19 |
+> 20 |         checkPending();
+     |         ^^^^^^^^^^^^ `checkPending` accessed before it is declared
+  21 |
+  22 |         // Check every minute
+  23 |         const interval = setInterval(() => {
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\components\payment-reminder.tsx:44:5
+  42 |     }, [pendingCount, lastAlertDate]);
+  43 |
+> 44 |     const checkPending = async () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 45 |         try {
+     | ^^^^^^^^^^^^^
+> 46 |             const res = await fetch("/api/dashboard/reminders");
+     ÔÇª
+     | ^^^^^^^^^^^^^
+> 53 |         }
+     | ^^^^^^^^^^^^^
+> 54 |     };
+     | ^^^^^^^ `checkPending` is declared here
+  55 |
+  56 |     const triggerAlert = () => {
+  57 |         // 1. Audio Alert                                                                                                                                                                                                                  react-hooks/immutability
+  35:21  error    Error: Cannot access variable before it is declared
+
+`triggerAlert` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\components\payment-reminder.tsx:35:21
+  33 |             if (currentHour === 21 && currentMinute === 0 && lastAlertDate !== todayStr) {
+  34 |                 if (pendingCount > 0) {
+> 35 |                     triggerAlert();
+     |                     ^^^^^^^^^^^^ `triggerAlert` accessed before it is declared
+  36 |                     setLastAlertDate(todayStr);
+  37 |                 }
+  38 |             }
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\components\payment-reminder.tsx:56:5
+  54 |     };
+  55 |
+> 56 |     const triggerAlert = () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 57 |         // 1. Audio Alert
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 58 |         const audio = new Audio("/sounds/notification.mp3"); // We need to add this file or use a CDN? 
+     ÔÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 71 |         setIsVisible(true);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^
+> 72 |     };
+     | ^^^^^^^ `triggerAlert` is declared here
+  73 |
+  74 |     if (!isVisible || pendingCount === 0) return null;
+  75 |  react-hooks/immutability
+  42:8   warning  React Hook useEffect has a missing dependency: 'triggerAlert'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 react-hooks/exhaustive-deps
+  58:15  warning  'audio' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\lib\availability.ts
+  2:56  warning  'startOfDay' is defined but never used  @typescript-eslint/no-unused-vars
+  2:68  warning  'isSameDay' is defined but never used   @typescript-eslint/no-unused-vars
+  3:10  warning  'ptBR' is defined but never used        @typescript-eslint/no-unused-vars
+
+C:\Users\ericm\OneDrive\├ürea de Trabalho\PESSOAL\Agendador Andreia\web\src\middleware.ts
+  15:9  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+Ô£û 60 problems (25 errors, 35 warnings)
+

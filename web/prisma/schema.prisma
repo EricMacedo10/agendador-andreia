@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  appointments  Appointment[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  appointments Appointment[]
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  duration    Int      // in minutes
+  visible     Boolean  @default(true) // Controls visibility on booking page
+  imageUrl    String?  // URL to service image
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  appointments Appointment[]
+}
+
+model BusinessSettings {
+  id                   String  @id @default(cuid())
+  onlineBookingEnabled Boolean @default(false) // Master switch for online booking
+  
+  // Weekly Schedule Configuration
+  // Format: { "monday": { "start": "09:00", "end": "18:00", "isOpen": true }, ... }
+  workingHours         Json?    
+
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model Appointment {
+  id        String   @id @default(cuid())
+  date      DateTime
+  durationMinutes Int?   // Optional override for service duration
+  status    String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, COMPLETED
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id])
+  
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Financials
+  paymentMethod PaymentMethod?
+  paidPrice     Decimal?       @db.Decimal(10, 2) // Snapshot of price at completion
+}
+
+enum PaymentMethod {
+  PIX
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+}
