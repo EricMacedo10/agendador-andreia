@@ -37,7 +37,7 @@ export const authConfig = {
             return token;
         }
     },
-    // Fallback secret for dev/test - Vercel should have AUTH_SECRET set in env
-    secret: process.env.AUTH_SECRET || "segredo-temporario-andreia-123",
+    // Hardcoded secret to bypass Vercel Edge environment variable issues
+    secret: "andreia-agendador-secret-key-2024-fixed",
     trustHost: true,
 } satisfies NextAuthConfig
