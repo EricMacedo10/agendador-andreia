@@ -1,5 +1,5 @@
 
-// Force Vercel Deploy - Fix PWA and Layout
+// Force Vercel Deploy - EMERGENCY TRIGGER 2
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
