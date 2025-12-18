@@ -1,5 +1,6 @@
 # Agendador Andreia
- 💅
+ 💅 
+
 
 Sistema de gestão completo para profissionais de beleza, focado em facilidade de uso, design mobile-first e instalação como aplicativo (PWA).
 
