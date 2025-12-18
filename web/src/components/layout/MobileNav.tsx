@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Calendar, Users, Briefcase } from "lucide-react";
+import { Home, Calendar, Users, Briefcase, LogOut } from "lucide-react";
 import { clsx } from "clsx";
+import { signOut } from "next-auth/react";
 
 const navItems = [
   { href: "/dashboard", label: "Início", icon: Home },
@@ -36,6 +37,13 @@ export function MobileNav() {
             </Link>
           );
         })}
+        <button
+          onClick={() => signOut({ callbackUrl: "/api/auth/signin" })}
+          className="flex flex-col items-center justify-center p-2 text-xs font-medium text-zinc-500 hover:text-red-600 transition-colors"
+        >
+          <LogOut className="mb-1 h-6 w-6" />
+          Sair
+        </button>
       </div>
     </nav>
   );

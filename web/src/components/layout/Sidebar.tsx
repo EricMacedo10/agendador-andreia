@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Calendar, Users, Briefcase, Settings, LogOut } from "lucide-react";
 import { clsx } from "clsx";
+import { signOut } from "next-auth/react";
 
 const navItems = [
     { href: "/dashboard", label: "Início", icon: Home },
@@ -50,7 +51,10 @@ export function Sidebar() {
                     <Settings className="h-5 w-5" />
                     Configurações
                 </Link>
-                <button className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50">
+                <button
+                    onClick={() => signOut({ callbackUrl: "/api/auth/signin" })}
+                    className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                >
                     <LogOut className="h-5 w-5" />
                     Sair
                 </button>
