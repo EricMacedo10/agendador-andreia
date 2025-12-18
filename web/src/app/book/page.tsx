@@ -37,7 +37,9 @@ export default function BookingPage() {
             fetch("/api/settings", { cache: "no-store" }).then(r => r.json()),
             fetch("/api/services?public=true").then(r => r.json())
         ]).then(([settingsData, servicesData]) => {
-            setBookingEnabled(settingsData.onlineBookingEnabled);
+            // Temporary Force Close for internal testing phase
+            setBookingEnabled(false);
+            // setBookingEnabled(settingsData.onlineBookingEnabled);
             setServices(servicesData);
             setLoading(false);
         });
