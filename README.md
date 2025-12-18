@@ -3,7 +3,8 @@
 Sistema de gestão completo para profissionais de beleza, focado em facilidade de uso, design mobile-first e instalação como aplicativo (PWA).
 
 ![Status](https://img.shields.io/badge/Status-Finalizado-success)
-![Tech](https://img.shields.io/badge/Tech-Next.js%20%7C%20Prisma%20%7C%20Tailwind-blue)
+![Tech](https://img.shields.io/badge/Tech-Next.js_15-black)
+![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)
 
 ## 🚀 Funcionalidades
 
@@ -18,13 +19,13 @@ Sistema de gestão completo para profissionais de beleza, focado em facilidade d
 - **Página de Configuração**: Gestão de usuários do sistema.
 
 ### 💰 Financeiro Simplificado
-- Registro de pagamentos (PIX, Dinheiro, Cartão).
-- Resumo diário de ganhos.
+- Registro de pagamentos (Diário, Semanal, Mensal).
+- Resumo de ganhos e despesas.
 
 ### 📱 Mobile (PWA)
 - Instalável no celular (Android/iOS).
-- Ícone personalizado.
-- Funciona como um aplicativo nativo.
+- Ícone personalizado e tela de abertura (Splash Screen).
+- Funciona como aplicativo nativo.
 
 ## 🛠️ Tecnologias
 
@@ -33,11 +34,13 @@ Sistema de gestão completo para profissionais de beleza, focado em facilidade d
 - **Banco de Dados**: PostgreSQL (Supabase).
 - **Autenticação**: NextAuth.js v5.
 
-## 📦 Como Rodar Localmente
+## 📦 Como Rodar Localmente (Desenvolvimento)
 
-1. **Clone o repositório** (ou baixe o código):
+Para rodar este projeto no seu computador:
+
+1. **Clone o repositório**:
    ```bash
-   git clone https://github.com/SEU_USUARIO/agendador-andreia.git
+   git clone https://github.com/EricMacedo10/agendador-andreia.git
    cd agendador-andreia/web
    ```
 
@@ -46,12 +49,14 @@ Sistema de gestão completo para profissionais de beleza, focado em facilidade d
    npm install
    ```
 
-3. **Configure o Banco de Dados**:
-   - Crie um arquivo `.env` na pasta `web`.
-   - Adicione sua `DATABASE_URL` e `NEXTAUTH_SECRET`.
-   - Rode as migrações:
-     ```bash
-     npx prisma db push
+3. **Configure as Variáveis de Ambiente**:
+   - Duplique o arquivo `.env.example` (se existir) ou crie um novo `.env`.
+   - **IMPORTANTE**: Nunca compartilhe este arquivo.
+   - Variáveis necessárias:
+     ```env
+     DATABASE_URL="sua_url_de_conexao_do_supabase"
+     DIRECT_URL="sua_url_direta_do_supabase"
+     NEXTAUTH_SECRET="sua_chave_secreta_gerada"
      ```
 
 4. **Inicie o Servidor**:
@@ -60,10 +65,10 @@ Sistema de gestão completo para profissionais de beleza, focado em facilidade d
    ```
    Acesse `http://localhost:3000`.
 
-## 🚀 Deployment
+## 🔒 Segurança
 
-Este projeto está configurado para deploy na **Vercel**.
-Veja o arquivo `DEPLOY_GUIDE.md` para instruções detalhadas.
+- **Credenciais**: Nunca suba o arquivo `.env` para o GitHub. Ele já está listado no `.gitignore`.
+- **Vercel**: Configure as variáveis de ambiente diretamente no painel da Vercel em "Project Settings" > "Environment Variables".
 
 ---
 Desenvolvido com ❤️ para Andreia.

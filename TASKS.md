@@ -50,10 +50,12 @@ Este arquivo guiará o desenvolvimento do "Agendador Andreia" passo a passo.
 ## Fase 4: Publicação e Acesso (Para ela usar no celular)
 - [x] **Deployment (Colocar na Internet)**
     - [x] Criar conta no Supabase (Banco de Dados).
-    - [/] Configurar Projeto no Vercel (Hospedagem Gratuita).
+    - [x] Configurar Projeto no Vercel (Hospedagem Gratuita).
 - [x] **Instalação no Celular (PWA)**
     - [x] Criar Manifesto (ícone na tela inicial).
     - [x] Configurar Service Worker (cache básico).
 
 ## Conclusão
-Projeto finalizado em 16/12/2025. Pronto para uso!
+Projeto configurado e implantado em 18/12/2025.
+- Repositório Git configurado com segurança (segredos ignorados).
+- Deploy realizado no Vercel.
