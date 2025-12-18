@@ -1,8 +1,10 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import prisma from "@/lib/prisma"
+import { authConfig } from "./auth.config"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    ...authConfig,
     providers: [
         Credentials({
             credentials: {
@@ -35,28 +37,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
         }),
     ],
-    pages: {
-        signIn: "/api/auth/signin", // Use default for now, can customize later
-    },
-    callbacks: {
-        async session({ session, token }) {
-            if (session?.user && token.sub) {
-                session.user.id = token.sub;
-                // @ts-ignore
-                session.user.role = token.role;
-            }
-            return session;
-        },
-        async jwt({ token, user }) {
-            if (user) {
-                token.sub = user.id;
-                // @ts-ignore
-                token.role = user.role;
-            }
-            return token;
-        }
-    },
-    secret: process.env.AUTH_SECRET || "segredo-temporario-andreia-123", // Fallback for testing if env is missing
-    trustHost: true,
 })
+
 
