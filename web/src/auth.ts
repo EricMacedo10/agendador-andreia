@@ -57,5 +57,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
     },
     secret: process.env.AUTH_SECRET || "segredo-temporario-andreia-123", // Fallback for testing if env is missing
+    trustHost: true,
 })
 
