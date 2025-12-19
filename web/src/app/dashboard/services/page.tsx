@@ -165,41 +165,41 @@ export default function ServicesPage() {
                         key={service.id}
                         className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl flex justify-between items-center hover:border-zinc-700 transition-colors"
                     >
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
                             {service.imageUrl ? (
                                 <img
                                     src={service.imageUrl}
                                     alt={service.name}
-                                    className="w-16 h-16 rounded-lg object-cover border border-zinc-700"
+                                    className="w-16 h-16 rounded-lg object-cover border border-zinc-700 flex-shrink-0"
                                 />
                             ) : (
-                                <div className="w-16 h-16 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-600 border border-zinc-700">
+                                <div className="w-16 h-16 rounded-lg bg-zinc-800 flex items-center justify-center text-zinc-600 border border-zinc-700 flex-shrink-0">
                                     <ImageIcon size={24} />
                                 </div>
                             )}
 
-                            <div>
+                            <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-3">
-                                    <h3 className="font-semibold text-lg">{service.name}</h3>
-                                    <span className={`text-xs px-2 py-0.5 rounded-full ${service.visible ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}`}>
+                                    <h3 className="font-semibold text-lg truncate">{service.name}</h3>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${service.visible ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}`}>
                                         {service.visible ? 'Visível' : 'Oculto'}
                                     </span>
                                 </div>
-                                <p className="text-zinc-400 text-sm mt-1">{service.description}</p>
-                                <div className="text-yellow-500 mt-2 font-medium">
+                                <p className="text-zinc-400 text-sm mt-1 truncate">{service.description}</p>
+                                <div className="text-yellow-500 mt-2 font-medium truncate">
                                     R$ {Number(service.price).toFixed(2)} • {service.duration} min
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex gap-2">
-                            <button onClick={() => handleEdit(service)} className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-white" title="Editar">
+                        <div className="flex gap-2 flex-shrink-0">
+                            <button onClick={(e) => { e.stopPropagation(); handleEdit(service); }} className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-white" title="Editar">
                                 <Edit2 size={18} />
                             </button>
-                            <button onClick={() => toggleVisibility(service.id, service.visible)} className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-white" title="Alternar Visibilidade">
+                            <button onClick={(e) => { e.stopPropagation(); toggleVisibility(service.id, service.visible); }} className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-white" title="Alternar Visibilidade">
                                 {service.visible ? <Check size={18} /> : <X size={18} />}
                             </button>
-                            <button onClick={() => handleDelete(service.id)} className="p-2 hover:bg-red-900/20 rounded-lg text-zinc-400 hover:text-red-500" title="Excluir">
+                            <button onClick={(e) => { e.stopPropagation(); handleDelete(service.id); }} className="p-2 hover:bg-red-900/20 rounded-lg text-zinc-400 hover:text-red-500" title="Excluir">
                                 <Trash2 size={18} />
                             </button>
                         </div>
@@ -213,7 +213,7 @@ export default function ServicesPage() {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60] backdrop-blur-sm">
                     <div className="bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-md p-6 shadow-xl max-h-[90vh] overflow-y-auto">
                         <h2 className="text-xl font-bold mb-4 text-white">{editingService ? "Editar Serviço" : "Novo Serviço"}</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">

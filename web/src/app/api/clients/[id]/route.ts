@@ -5,7 +5,7 @@ import { getAdminUser } from "@/lib/user-helper";
 
 export async function GET(
     request: Request,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: any }
 ) {
     try {
         const { id } = await params;
@@ -58,6 +58,12 @@ export async function DELETE(
         const { id } = await params;
         await getAdminUser();
 
+        // First delete all appointments for this client
+        await prisma.appointment.deleteMany({
+            where: { clientId: id }
+        });
+
+        // Then delete the client
         await prisma.client.delete({
             where: { id }
         });

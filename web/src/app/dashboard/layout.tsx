@@ -13,9 +13,9 @@ export default function DashboardLayout({
             <Sidebar />
 
             {/* Conteúdo Principal */}
-            <main className="flex-1 pb-20 md:pb-0 relative">
+            <main className="flex-1 pb-20 md:pb-0 relative flex flex-col">
                 <PaymentReminder />
-                <div className="mx-auto max-w-5xl p-4 md:p-8">
+                <div className="mx-auto max-w-5xl p-4 md:p-8 flex-1 w-full flex flex-col">
                     {children}
                 </div>
             </main>

@@ -18,8 +18,6 @@ export const metadata: Metadata = {
   title: "Agendador Andreia",
   description: "Gestão inteligente para profissionais de beleza",
   manifest: "/manifest.json",
-  themeColor: "#e11d48",
-  viewport: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, viewport-fit=cover",
   icons: {
     icon: "/favicon.ico",
     apple: "/icon-512.png",

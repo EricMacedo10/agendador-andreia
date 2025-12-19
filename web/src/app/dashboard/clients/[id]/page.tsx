@@ -6,9 +6,8 @@ import { ArrowLeft, Calendar, User, Phone, DollarSign, Clock } from "lucide-reac
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function ClientDetailsPage({ params }: { params: { id: string } }) {
-    // Await params for Next.js 15+ compatibility if needed, though 14 works directly usually.
-    // Ideally we should await if type suggests it, but standard Next.js 14 params are objects.
+export default async function ClientDetailsPage({ params }: { params: any }) {
+    // Next.js 15+ compatible await for params
     const { id } = await params;
 
     const client = await prisma.client.findUnique({

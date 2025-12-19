@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 // Correctly type the params argument for dynamic routes in App Router
 export async function PUT(
     request: Request,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: any }
 ) {
     try {
         const id = (await params).id;
@@ -34,7 +34,7 @@ export async function PUT(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: any }
 ) {
     try {
         const id = (await params).id;

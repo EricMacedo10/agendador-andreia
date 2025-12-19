@@ -56,7 +56,7 @@ export default function SchedulePage() {
     const hours = Array.from({ length: 13 }, (_, i) => i + 8);
 
     return (
-        <div className="p-6 max-w-6xl mx-auto text-zinc-900 flex h-screen flex-col overflow-hidden bg-white">
+        <div className="p-6 text-zinc-900 flex flex-1 h-full flex-col overflow-hidden bg-white">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <div>
@@ -99,7 +99,7 @@ export default function SchedulePage() {
             </div>
 
             {/* Calendar Grid */}
-            <div className="flex-1 overflow-y-auto bg-white border border-zinc-200 rounded-2xl relative shadow-sm">
+            <div className="flex-1 overflow-y-auto bg-white border border-zinc-200 rounded-2xl relative shadow-sm pb-24">
                 {hours.map(hour => (
                     <div key={hour} className="flex border-b border-zinc-100 min-h-[100px] group hover:bg-zinc-50 transition-colors">
                         {/* Time Column */}
@@ -107,8 +107,25 @@ export default function SchedulePage() {
                             {hour}:00
                         </div>
 
-                        {/* Content Column */}
                         <div className="flex-1 relative p-1">
+                            {/* Empty State / Add Slot helper - Rendered FIRST to stay behind z-indexed items */}
+                            <div
+                                className="absolute inset-0 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity z-0"
+                                onClick={() => {
+                                    setEditingAppointment(null);
+                                    // Set modal date/time
+                                    const dateWithTime = new Date(currentDate);
+                                    dateWithTime.setHours(hour, 0, 0, 0);
+                                    setCurrentDate(dateWithTime); // Optional, or pass as prop
+
+                                    // HACK: Pass time via explicit prop or just rely on preselectedDate matching hour if we pass it correctly
+                                    // Let's modify state to just pass this date
+                                    setIsModalOpen(true);
+                                }}
+                            >
+                                <span className="text-zinc-400 text-xs font-bold">+ Adicionar em {hour}:00</span>
+                            </div>
+
                             {/* Render appointments for this hour */}
                             {appointments
                                 .filter(appt => parseISO(appt.date).getHours() === hour)
@@ -136,7 +153,7 @@ export default function SchedulePage() {
                                                 setEditingAppointment(appt);
                                                 setIsModalOpen(true);
                                             }}
-                                            className={`mb-1 p-3 border-l-4 rounded-r-lg transition-colors cursor-pointer shadow-sm relative z-10 ${bgClass}`}
+                                            className={`mb-1 p-3 border-l-4 rounded-r-lg transition-colors cursor-pointer shadow-sm relative z-20 ${bgClass}`}
                                         >
                                             <div className="font-bold flex justify-between items-center">
                                                 <span>{appt.client.name}</span>
@@ -155,24 +172,6 @@ export default function SchedulePage() {
                                         </div>
                                     )
                                 })}
-
-                            {/* Empty State / Add Slot helper */}
-                            <div
-                                className="absolute inset-0 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity"
-                                onClick={() => {
-                                    setEditingAppointment(null);
-                                    // Set modal date/time
-                                    const dateWithTime = new Date(currentDate);
-                                    dateWithTime.setHours(hour, 0, 0, 0);
-                                    setCurrentDate(dateWithTime); // Optional, or pass as prop
-
-                                    // HACK: Pass time via explicit prop or just rely on preselectedDate matching hour if we pass it correctly
-                                    // Let's modify state to just pass this date
-                                    setIsModalOpen(true);
-                                }}
-                            >
-                                <span className="text-zinc-400 text-xs font-bold">+ Adicionar em {hour}:00</span>
-                            </div>
                         </div>
                     </div>
                 ))}

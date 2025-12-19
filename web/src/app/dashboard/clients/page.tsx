@@ -132,25 +132,25 @@ export default function ClientsPage() {
                             key={client.id}
                             className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 shadow-sm hover:border-rose-200 transition-colors"
                         >
-                            <div className="flex items-center gap-4">
-                                <Link href={`/dashboard/clients/${client.id}`} className="flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-rose-700 font-bold text-lg hover:bg-rose-200 transition-colors">
+                            <div className="flex items-center gap-4 flex-1 min-w-0">
+                                <Link href={`/dashboard/clients/${client.id}`} className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-full bg-rose-100 text-rose-700 font-bold text-lg hover:bg-rose-200 transition-colors">
                                     {client.name.charAt(0).toUpperCase()}
                                 </Link>
-                                <div>
-                                    <Link href={`/dashboard/clients/${client.id}`} className="font-bold text-zinc-900 text-lg hover:text-rose-600 transition-colors">
+                                <div className="min-w-0 flex-1">
+                                    <Link href={`/dashboard/clients/${client.id}`} className="block font-bold text-zinc-900 text-lg hover:text-rose-600 transition-colors truncate">
                                         {client.name}
                                     </Link>
                                     <div className="flex items-center gap-1 text-sm text-zinc-500 font-medium">
-                                        <Phone className="h-3 w-3" />
-                                        {client.phone}
+                                        <Phone className="h-3 w-3 flex-shrink-0" />
+                                        <span className="truncate">{client.phone}</span>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => handleEdit(client)} className="p-2 hover:bg-zinc-100 rounded-lg text-zinc-400 hover:text-rose-600 transition-colors" title="Editar">
+                            <div className="flex gap-2 flex-shrink-0">
+                                <button onClick={(e) => { e.stopPropagation(); handleEdit(client); }} className="p-2 hover:bg-zinc-100 rounded-lg text-zinc-400 hover:text-rose-600 transition-colors" title="Editar">
                                     <Edit2 size={18} />
                                 </button>
-                                <button onClick={() => handleDelete(client.id)} className="p-2 hover:bg-red-50 rounded-lg text-zinc-400 hover:text-red-500 transition-colors" title="Excluir">
+                                <button onClick={(e) => { e.stopPropagation(); handleDelete(client.id); }} className="p-2 hover:bg-red-50 rounded-lg text-zinc-400 hover:text-red-500 transition-colors" title="Excluir">
                                     <Trash2 size={18} />
                                 </button>
                             </div>
@@ -161,7 +161,7 @@ export default function ClientsPage() {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[60] backdrop-blur-sm">
                     <div className="bg-white border border-zinc-200 rounded-2xl w-full max-w-md p-6 shadow-xl">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-zinc-900">{editingClient ? "Editar Cliente" : "Novo Cliente"}</h2>
