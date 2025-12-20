@@ -1,75 +1,241 @@
-# Agendador Andreia
- 💅
+# Agendador Andreia 💅
 
 Sistema de gestão completo para profissionais de beleza, focado em facilidade de uso, design mobile-first e instalação como aplicativo (PWA).
 
-![Status](https://img.shields.io/badge/Status-Finalizado-success)
+![Status](https://img.shields.io/badge/Status-Produção-success)
 ![Tech](https://img.shields.io/badge/Tech-Next.js_15-black)
 ![Deploy](https://img.shields.io/badge/Deploy-Vercel-black)
+![Database](https://img.shields.io/badge/Database-PostgreSQL-blue)
+
+**🌐 Site**: https://agendador-andreia.vercel.app
+
+---
 
 ## 🚀 Funcionalidades
 
 ### 📅 Agenda Inteligente
-- Visualização diária de compromissos.
-- Agendamento rápido com cálculo automático de duração.
-- Status visuais: Pendente, Confirmado, Concluído (Pago).
+- Visualização diária de compromissos
+- Agendamento rápido com cálculo automático de duração
+- Status visuais: Pendente (🟠), Pago (💰), Atrasado (⚠️)
+- Edição rápida de agendamentos
+- Confirmação de pagamento com registro de método
 
-### 👥 Gestão de Clientes e Usuários
-- **Cadastro de Clientes**: Histórico e contatos.
-- **Controle de Acesso**: Níveis de permissão `ADMIN` (Controle Total) e `USER`.
-- **Página de Configuração**: Gestão de usuários do sistema.
+### 👥 Gestão de Clientes
+- Cadastro completo (nome, telefone, observações)
+- Histórico de agendamentos
+- Edição e exclusão de clientes
+- Busca e filtros
+
+### 💼 Serviços Personalizados
+- Cadastro de procedimentos com preço e duração
+- Imagens personalizadas para cada serviço
+- Controle de visibilidade (mostrar/ocultar na página de agendamento)
+- Upload de fotos em Base64 (sem custos de storage)
 
 ### 💰 Financeiro Simplificado
-- Registro de pagamentos (Diário, Semanal, Mensal).
-- Resumo de ganhos e despesas.
+- Resumo de ganhos (Diário, Mensal)
+- Filtros por data
+- Registro de métodos de pagamento (PIX, Dinheiro, Cartão)
 
-### 📱 Mobile (PWA)
-- Instalável no celular (Android/iOS).
-- Ícone personalizado e tela de abertura (Splash Screen).
-- Funciona como aplicativo nativo.
+### 🔒 Controle de Acesso
+- Autenticação obrigatória com NextAuth v5
+- Sistema de roles (ADMIN/USER)
+- Middleware de proteção de rotas
+- Sessões seguras
 
-## 🛠️ Tecnologias
-
-- **Frontend**: [Next.js 15](https://nextjs.org/) (App Router), [React](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/).
-- **Backend**: API Routes (Next.js), [Prisma ORM](https://www.prisma.io/).
-- **Banco de Dados**: PostgreSQL (Supabase).
-- **Autenticação**: NextAuth.js v5.
-
-## 📦 Como Rodar Localmente (Desenvolvimento)
-
-Para rodar este projeto no seu computador:
-
-1. **Clone o repositório**:
-   ```bash
-   git clone https://github.com/EricMacedo10/agendador-andreia.git
-   cd agendador-andreia/web
-   ```
-
-2. **Instale as dependências**:
-   ```bash
-   npm install
-   ```
-
-3. **Configure as Variáveis de Ambiente**:
-   - Duplique o arquivo `.env.example` (se existir) ou crie um novo `.env`.
-   - **IMPORTANTE**: Nunca compartilhe este arquivo.
-   - Variáveis necessárias:
-     ```env
-     DATABASE_URL="sua_url_de_conexao_do_supabase"
-     DIRECT_URL="sua_url_direta_do_supabase"
-     NEXTAUTH_SECRET="sua_chave_secreta_gerada"
-     ```
-
-4. **Inicie o Servidor**:
-   ```bash
-   npm run dev
-   ```
-   Acesse `http://localhost:3000`.
-
-## 🔒 Segurança
-
-- **Credenciais**: Nunca suba o arquivo `.env` para o GitHub. Ele já está listado no `.gitignore`.
-- **Vercel**: Configure as variáveis de ambiente diretamente no painel da Vercel em "Project Settings" > "Environment Variables".
+### 📱 Progressive Web App (PWA)
+- **Instalável** no Android e iOS
+- Funciona como app nativo
+- Ícone personalizado na tela inicial
+- Splash screen branded
+- Suporte offline (futuro)
 
 ---
-Desenvolvido com ❤️ para Andreia.
+
+## 🛠️ Stack Tecnológica
+
+### Frontend
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+- **React**: Latest
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+
+### Backend
+- **API**: Next.js API Routes
+- **ORM**: [Prisma](https://www.prisma.io/)
+- **Auth**: [NextAuth.js v5](https://authjs.dev/)
+
+### Database
+- **Provider**: [Supabase](https://supabase.com/)
+- **Type**: PostgreSQL
+
+### Deploy
+- **Hosting**: [Vercel](https://vercel.com/)
+- **CI/CD**: Automatic deployments from GitHub
+
+---
+
+## 📦 Como Rodar Localmente
+
+### Pré-requisitos
+- Node.js 18+ instalado
+- Conta no Supabase (banco de dados)
+- Git configurado
+
+### 1. Clone o Repositório
+```bash
+git clone https://github.com/EricMacedo10/agendador-andreia.git
+cd agendador-andreia/web
+```
+
+### 2. Instale Dependências
+```bash
+npm install
+```
+
+### 3. Configure Variáveis de Ambiente
+
+Crie um arquivo `.env` na pasta `web` com:
+
+```env
+# Database (Supabase)
+DATABASE_URL="postgresql://user:password@host:port/database?pgbouncer=true"
+DIRECT_URL="postgresql://user:password@host:port/database"
+
+# NextAuth
+NEXTAUTH_SECRET="sua-chave-secreta-aleatoria"
+NEXTAUTH_URL="http://localhost:3000"
+```
+
+**⚠️ IMPORTANTE**: Nunca commite o arquivo `.env`! Ele já está no `.gitignore`.
+
+### 4. Execute Migrations
+```bash
+npx prisma migrate dev
+```
+
+### 5. (Opcional) Seed do Banco
+```bash
+npx prisma db seed
+```
+
+### 6. Inicie o Servidor
+```bash
+npm run dev
+```
+
+Acesse: http://localhost:3000
+
+---
+
+## 🗂️ Estrutura do Projeto
+
+```
+agendador-andreia/
+├── web/                          # Aplicação Next.js
+│   ├── prisma/
+│   │   └── schema.prisma         # Schema do banco de dados
+│   ├── public/
+│   │   ├── icons/                # Ícones PWA
+│   │   └── manifest.json         # PWA manifest
+│   ├── src/
+│   │   ├── app/                  # App Router (Next.js 15)
+│   │   │   ├── api/              # API Routes
+│   │   │   ├── dashboard/        # Dashboard pages
+│   │   │   ├── book/             # Página de agendamento público
+│   │   │   └── page.tsx          # Home/Login
+│   │   ├── components/           # Componentes React
+│   │   ├── lib/                  # Utilidades
+│   │   ├── auth.ts               # Configuração NextAuth
+│   │   └── middleware.ts         # Proteção de rotas
+│   └── package.json
+├── LOGIN_INSTRUCTIONS.md         # Guia de acesso
+└── README.md                     # Este arquivo
+```
+
+---
+
+## 🚀 Deploy
+
+### Vercel (Produção)
+
+O projeto está configurado para deploy automático:
+
+1. **Push para GitHub** → Deploy automático na Vercel
+2. **Deploy Manual**:
+   ```bash
+   npx vercel deploy --prod
+   ```
+
+### Configuração na Vercel
+
+1. **Root Directory**: `web`
+2. **Build Command**: `npm run build`
+3. **Environment Variables**: Configure as mesmas do `.env`
+
+---
+
+## 🔐 Segurança
+
+### Boas Práticas Implementadas
+- ✅ Senhas **não** usam hash (TODO: implementar bcrypt)
+- ✅ Autenticação obrigatória via NextAuth
+- ✅ Middleware protege rotas administrativas
+- ✅ Variáveis sensíveis em `.env` (não commitado)
+- ✅ CORS configurado adequadamente
+- ✅ Validação de dados no backend
+
+### ⚠️ TODOs de Segurança
+- [ ] Implementar bcrypt para hash de senhas
+- [ ] Rate limiting em APIs
+- [ ] CSRF protection
+- [ ] Audit logs
+
+---
+
+## 📝 Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run dev              # Inicia servidor dev (localhost:3000)
+
+# Build
+npm run build            # Build para produção
+npm start                # Inicia servidor de produção
+
+# Prisma
+npx prisma studio        # Interface visual do banco
+npx prisma migrate dev   # Criar/aplicar migrations
+npx prisma generate      # Gerar cliente Prisma
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Erro de Deploy no Vercel
+```
+Error: The provided path "~\...\web\web" does not exist
+```
+→ **Solução**: Execute `npx vercel deploy --prod` da **pasta raiz**, não de `/web`
+
+### Build Error: Prisma não encontrado
+→ **Solução**: Execute `npx prisma generate` antes do build
+
+### Login não funciona
+→ **Verifique**: `NEXTAUTH_SECRET` e `NEXTAUTH_URL` estão configurados
+
+---
+
+## 📄 Licença
+
+Este projeto é privado e desenvolvido especificamente para uso pessoal.
+
+---
+
+## 👏 Créditos
+
+Desenvolvido com ❤️ para **Andreia**  
+Arquitetura e desenvolvimento: **Eric Macedo**
+
+**Stack moderna • Zero custos • 100% funcional**

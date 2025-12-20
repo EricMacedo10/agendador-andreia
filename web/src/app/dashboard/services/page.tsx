@@ -133,8 +133,8 @@ export default function ServicesPage() {
     }
 
     return (
-        <div className="p-6 max-w-4xl mx-auto text-zinc-100">
-            <div className="flex justify-between items-center mb-8">
+        <div className="p-4 md:p-6 max-w-4xl mx-auto text-zinc-100 overflow-x-hidden">
+            <div className="flex flex-col gap-4 mb-6 md:flex-row md:justify-between md:items-center">
                 <div>
                     <h1 className="text-3xl font-bold text-yellow-500">Serviços</h1>
                     <p className="text-zinc-400">Gerencie seus procedimentos e valores</p>
@@ -152,7 +152,7 @@ export default function ServicesPage() {
                         });
                         setIsModalOpen(true);
                     }}
-                    className="bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-colors"
+                    className="bg-yellow-600 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors w-full md:w-auto"
                 >
                     <Plus size={20} />
                     Novo Serviço
@@ -163,7 +163,7 @@ export default function ServicesPage() {
                 {isLoading ? <p>Carregando...</p> : services.map((service) => (
                     <div
                         key={service.id}
-                        className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl flex justify-between items-center hover:border-zinc-700 transition-colors"
+                        className="bg-zinc-900 border border-zinc-800 p-3 rounded-xl flex flex-col md:flex-row md:justify-between md:items-center gap-3 hover:border-zinc-700 transition-colors"
                     >
                         <div className="flex items-center gap-4 flex-1 min-w-0">
                             {service.imageUrl ? (
@@ -192,7 +192,7 @@ export default function ServicesPage() {
                             </div>
                         </div>
 
-                        <div className="flex gap-2 flex-shrink-0">
+                        <div className="flex gap-1 flex-shrink-0 self-end md:self-center">
                             <button onClick={(e) => { e.stopPropagation(); handleEdit(service); }} className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-white" title="Editar">
                                 <Edit2 size={18} />
                             </button>

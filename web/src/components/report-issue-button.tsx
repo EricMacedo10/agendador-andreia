@@ -45,7 +45,7 @@ export function ReportIssueButton() {
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-transform hover:scale-110 hover:bg-red-700 active:scale-95 dark:bg-red-500 dark:hover:bg-red-600"
+                className="hidden fixed bottom-24 left-4 md:bottom-8 md:left-8 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-white shadow-lg transition-transform hover:scale-110 hover:bg-red-700 active:scale-95 dark:bg-red-500 dark:hover:bg-red-600"
                 title="Reportar Bug"
             >
                 <Bug size={24} />

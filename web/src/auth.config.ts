@@ -8,21 +8,17 @@ export const authConfig = {
         // Added later in auth.ts
     ],
     callbacks: {
-        authorized({ auth, request: nextUrl }) {
-            // TEMPORARY: Bypass auth protection to prevent redirect loops
-            // TODO: Implement proper login page before re-enabling
-            return true
+        authorized({ auth, request: { nextUrl } }) {
+            const isLoggedIn = !!auth?.user
+            const isOnDashboard = nextUrl.pathname.startsWith("/dashboard")
+            const isOnSettings = nextUrl.pathname.startsWith("/settings")
 
-            // Original logic (commented out):
-            // const isLoggedIn = !!auth?.user
-            // const isOnDashboard = nextUrl.nextUrl.pathname.startsWith("/dashboard")
-            // const isOnServices = nextUrl.nextUrl.pathname.startsWith("/services")
-            // const isOnClients = nextUrl.nextUrl.pathname.startsWith("/clients")
-            // if (isOnDashboard || isOnServices || isOnClients) {
-            //     if (isLoggedIn) return true
-            //     return false
-            // }
-            // return true
+            // Proteger rotas do dashboard
+            if (isOnDashboard || isOnSettings) {
+                return isLoggedIn
+            }
+
+            return true
         },
         async session({ session, token }) {
             if (session?.user && token.sub) {

@@ -8,3 +8,5 @@ npm-debug.log
 yarn-debug.log
 .vscode
 .idea
+.vercel
+.env*.local

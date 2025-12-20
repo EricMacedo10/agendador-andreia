@@ -58,7 +58,7 @@ export default function SchedulePage() {
     return (
         <div className="p-6 text-zinc-900 flex flex-1 h-full flex-col overflow-hidden bg-white">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div className="flex flex-col gap-4 mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-rose-600 flex items-center gap-2">
                         <CalendarIcon /> Agenda
@@ -66,36 +66,38 @@ export default function SchedulePage() {
                     <p className="text-zinc-500">Gerencie seus compromissos diários</p>
                 </div>
 
-                <div className="flex items-center gap-4 bg-zinc-100 p-2 rounded-xl border border-zinc-200">
-                    <button onClick={handlePrevDay} className="p-2 hover:bg-zinc-200 rounded-lg transition-colors text-zinc-600">
-                        <ChevronLeft size={20} />
-                    </button>
-                    <div className="text-center min-w-[180px]">
-                        <div className="font-bold text-lg capitalize text-zinc-900">
-                            {format(currentDate, "EEEE", { locale: ptBR })}
+                <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                    <div className="flex items-center gap-2 bg-zinc-100 p-2 rounded-xl border border-zinc-200 self-start">
+                        <button onClick={handlePrevDay} className="p-2 hover:bg-zinc-200 rounded-lg transition-colors text-zinc-600">
+                            <ChevronLeft size={20} />
+                        </button>
+                        <div className="text-center min-w-[160px]">
+                            <div className="font-bold text-base capitalize text-zinc-900">
+                                {format(currentDate, "EEEE", { locale: ptBR })}
+                            </div>
+                            <div className="text-sm text-zinc-500">
+                                {format(currentDate, "d 'de' MMMM", { locale: ptBR })}
+                            </div>
                         </div>
-                        <div className="text-sm text-zinc-500">
-                            {format(currentDate, "d 'de' MMMM", { locale: ptBR })}
-                        </div>
+                        <button onClick={handleNextDay} className="p-2 hover:bg-zinc-200 rounded-lg transition-colors text-zinc-600">
+                            <ChevronRight size={20} />
+                        </button>
+                        <button onClick={handleToday} className="text-xs text-rose-600 hover:text-rose-700 font-bold px-2 uppercase">
+                            Hoje
+                        </button>
                     </div>
-                    <button onClick={handleNextDay} className="p-2 hover:bg-zinc-200 rounded-lg transition-colors text-zinc-600">
-                        <ChevronRight size={20} />
-                    </button>
-                    <button onClick={handleToday} className="text-xs text-rose-600 hover:text-rose-700 font-bold px-2 uppercase">
-                        Hoje
+
+                    <button
+                        onClick={() => {
+                            setEditingAppointment(null);
+                            setIsModalOpen(true);
+                        }}
+                        className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform hover:scale-105 shadow-lg shadow-rose-900/20 w-full md:w-auto"
+                    >
+                        <Plus size={20} />
+                        Novo Agendamento
                     </button>
                 </div>
-
-                <button
-                    onClick={() => {
-                        setEditingAppointment(null);
-                        setIsModalOpen(true);
-                    }}
-                    className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-transform hover:scale-105 shadow-lg shadow-rose-900/20"
-                >
-                    <Plus size={20} />
-                    Novo Agendamento
-                </button>
             </div>
 
             {/* Calendar Grid */}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export function PaymentReminder() {
     const [pendingCount, setPendingCount] = useState(0);
@@ -88,16 +89,16 @@ export function PaymentReminder() {
                     </p>
                 </div>
             </div>
-            <div className="flex gap-2">
-                <button
-                    onClick={() => router.push("/dashboard/schedule")}
-                    className="bg-white text-orange-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-orange-50 transition-colors"
+            <div className="flex items-center gap-2">
+                <Link
+                    href="/dashboard/appointments/pending"
+                    className="bg-white text-orange-600 px-3 py-1.5 rounded-md text-sm font-bold hover:bg-orange-50 transition-colors whitespace-nowrap"
                 >
-                    Ver Agenda
-                </button>
+                    Ver Pendências
+                </Link>
                 <button
                     onClick={() => setIsVisible(false)}
-                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                    className="p-1 hover:bg-white/20 rounded-full transition-colors"
                 >
                     <X size={20} />
                 </button>
