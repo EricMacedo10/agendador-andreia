@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { addMinutes } from 'date-fns';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function GET(request: Request) {
     try {
@@ -14,6 +15,20 @@ export async function GET(request: Request) {
 
         if (!isValidHeader && !isValidParam) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // 🔒 SEGURANÇA: Rate limiting (máximo 15 requisições por hora)
+        // Protege contra spam mesmo com secret válido
+        const limiter = await rateLimit({
+            key: 'cron-check-appointments',
+            limit: 15,
+            window: 3600000 // 1 hora
+        });
+
+        if (!limiter.success) {
+            return NextResponse.json({
+                error: 'Rate limit exceeded. Cron is being called too frequently.'
+            }, { status: 429 });
         }
 
         const now = new Date();
