@@ -25,6 +25,12 @@ Sistema de gestão completo para profissionais de beleza, focado em agendamentos
 - Os clientes podem agendar horários sozinhos.
 - **PWA Instalável**: O sistema pode ser instalado no celular como um aplicativo nativo.
 
+### 🔔 Notificações Push (Firebase Cloud Messaging)
+- **Alertas Automáticos**: 10 minutos antes de cada atendimento.
+- **Funciona com App Fechado**: Service Worker + Firebase Messaging.
+- **Mensagem Personalizada**: Inclui nome do cliente.
+- **Totalmente Gratuito**: Firebase Cloud Messaging tier gratuito.
+
 ---
 
 ## 🛠️ Tecnologias Utilizadas
@@ -36,6 +42,8 @@ Sistema de gestão completo para profissionais de beleza, focado em agendamentos
 - **Lucide React** (Ícones)
 - **Recharts** (Gráficos Financeiros)
 - **NextAuth.js** (Segurança e Login)
+- **Firebase Cloud Messaging** (Notificações Push)
+- **LRU Cache** (Rate Limiting)
 
 ---
 
@@ -64,8 +72,26 @@ DATABASE_URL="postgresql://user:password@host:5432/db_name?schema=public"
 # Segredo para Autenticação (Gere um hash aleatório)
 AUTH_SECRET="seu_segredo_super_seguro_aqui"
 
-# URL da Aplicação (Para o NextAuth)
+# URL da Aplicação
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 NEXTAUTH_URL="http://localhost:3000"
+
+# Firebase Cloud Messaging (Notificações Push)
+NEXT_PUBLIC_FIREBASE_API_KEY="sua_api_key"
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="seu_projeto.firebaseapp.com"
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="seu_projeto_id"
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="seu_projeto.appspot.com"
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="123456789"
+NEXT_PUBLIC_FIREBASE_APP_ID="1:123456:web:abc123"
+NEXT_PUBLIC_FIREBASE_VAPID_KEY="sua_vapid_key"
+
+# Firebase Admin SDK (Backend)
+FIREBASE_ADMIN_PROJECT_ID="seu_projeto_id"
+FIREBASE_ADMIN_CLIENT_EMAIL="firebase-adminsdk@seu_projeto.iam.gserviceaccount.com"
+FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+# Cron Job Secret
+CRON_SECRET="secret_super_seguro_para_cron"
 ```
 
 ### 4. Configurar o Banco de Dados
@@ -87,7 +113,26 @@ Acesse [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 ## 🔒 Segurança
 
-As rotas administrativas (`/dashboard`) são protegidas e exigem login. Apenas a rota `/book` é pública para os clientes.
+### Proteções Implementadas:
+- ✅ **Autenticação**: NextAuth.js nas rotas administrativas
+- ✅ **Rate Limiting**: Proteção contra spam e DDoS (LRU Cache)
+- ✅ **HTTP Security Headers**: 8 headers de segurança (CSP, HSTS, X-Frame-Options, etc)
+- ✅ **API Protection**: Auth + rate limiting em endpoints sensíveis
+- ✅ **Cron Protection**: Secret + rate limiting no cron job
+
+### Rotas:
+- `/dashboard/*` - Protegido (requer login)
+- `/book` - Público (para clientes)
+- `/api/notifications/*` - Protegido (auth + rate limiting)
+- `/api/cron/*` - Protegido (secret + rate limiting)
+
+**Grade de Segurança Esperada:** A/A+ (verificar em [securityheaders.com](https://securityheaders.com))
+
+---
+
+## 📚 Documentação
+
+Para mais informações sobre configuração e troubleshooting, veja a pasta `.gemini/antigravity/brain/` com guias detalhados.
 
 ---
 
