@@ -4,9 +4,15 @@ import { addMinutes } from 'date-fns';
 
 export async function GET(request: Request) {
     try {
-        // Verify authorization (Vercel Cron secret)
+        // Verify authorization - accept via header OR query parameter
         const authHeader = request.headers.get('authorization');
-        if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        const url = new URL(request.url);
+        const secretParam = url.searchParams.get('secret');
+
+        const isValidHeader = authHeader === `Bearer ${process.env.CRON_SECRET}`;
+        const isValidParam = secretParam === process.env.CRON_SECRET;
+
+        if (!isValidHeader && !isValidParam) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
