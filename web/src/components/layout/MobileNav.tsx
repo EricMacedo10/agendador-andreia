@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Calendar, Users, Briefcase, LogOut } from "lucide-react";
+import { Home, Calendar, Users, Briefcase, LogOut, TrendingUp } from "lucide-react";
 import { clsx } from "clsx";
 import { signOut } from "next-auth/react";
 
@@ -11,6 +11,7 @@ const navItems = [
   { href: "/dashboard/schedule", label: "Agenda", icon: Calendar },
   { href: "/dashboard/clients", label: "Clientes", icon: Users },
   { href: "/dashboard/services", label: "Serviços", icon: Briefcase },
+  { href: "/dashboard/reports", label: "Análises", icon: TrendingUp },
 ];
 
 export function MobileNav() {
