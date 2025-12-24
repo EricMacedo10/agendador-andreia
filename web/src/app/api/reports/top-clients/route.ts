@@ -1,12 +1,25 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { Appointment, Client } from "@prisma/client";
+import { startOfMonth, endOfMonth } from "date-fns";
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        // Buscar todos agendamentos completados com cliente
+        const { searchParams } = new URL(request.url);
+        const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
+        const month = parseInt(searchParams.get('month') || (new Date().getMonth() + 1).toString());
+
+        // Criar datas do período selecionado
+        const selectedDate = new Date(year, month - 1, 1);
+        const monthStart = startOfMonth(selectedDate);
+        const monthEnd = endOfMonth(selectedDate);
+
+        // Buscar agendamentos completados do período COM cliente
         const appointments = await prisma.appointment.findMany({
-            where: { status: "COMPLETED" },
+            where: {
+                status: "COMPLETED",
+                date: { gte: monthStart, lte: monthEnd }
+            },
             include: { client: true }
         });
 

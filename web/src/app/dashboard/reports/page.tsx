@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TrendingUp, Award, Users, DollarSign } from "lucide-react";
+import { TrendingUp, Award, Users, DollarSign, ChevronLeft, ChevronRight } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 type ReportData = {
     today: { revenue: number; count: number };
@@ -30,19 +32,25 @@ export default function ReportsPage() {
     const [topClients, setTopClients] = useState<ClientData[]>([]);
     const [loading, setLoading] = useState(true);
 
+    // Período selecionado (mês/ano)
+    const [selectedDate, setSelectedDate] = useState(new Date());
+
     useEffect(() => {
         fetchReports();
-    }, []);
+    }, [selectedDate]); // Atualiza quando muda o período
 
     const fetchReports = async () => {
         setLoading(true);
         try {
-            // Buscar todas as APIs em paralelo
+            const year = selectedDate.getFullYear();
+            const month = selectedDate.getMonth() + 1; // 1-12
+
+            // Buscar todas as APIs em paralelo com parâmetros de período
             const [summaryRes, servicesQtyRes, servicesRevRes, clientsRes] = await Promise.all([
-                fetch("/api/reports/summary"),
-                fetch("/api/reports/top-services?by=quantity"),
-                fetch("/api/reports/top-services?by=revenue"),
-                fetch("/api/reports/top-clients")
+                fetch(`/api/reports/summary?year=${year}&month=${month}`),
+                fetch(`/api/reports/top-services?by=quantity&year=${year}&month=${month}`),
+                fetch(`/api/reports/top-services?by=revenue&year=${year}&month=${month}`),
+                fetch(`/api/reports/top-clients?year=${year}&month=${month}`)
             ]);
 
             const summaryData = await summaryRes.json();
@@ -59,6 +67,23 @@ export default function ReportsPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Navegação de período
+    const handlePreviousMonth = () => {
+        const newDate = new Date(selectedDate);
+        newDate.setMonth(newDate.getMonth() - 1);
+        setSelectedDate(newDate);
+    };
+
+    const handleNextMonth = () => {
+        const newDate = new Date(selectedDate);
+        newDate.setMonth(newDate.getMonth() + 1);
+        setSelectedDate(newDate);
+    };
+
+    const handleCurrentMonth = () => {
+        setSelectedDate(new Date());
     };
 
     const formatCurrency = (value: number) =>
@@ -84,6 +109,41 @@ export default function ReportsPage() {
                     Relatórios
                 </h1>
                 <p className="text-sm md:text-base text-zinc-500">Análise financeira e desempenho</p>
+            </div>
+
+            {/* Seletor de Período - MOBILE OPTIMIZED */}
+            <div className="bg-white rounded-2xl border border-zinc-200 p-4 shadow-sm">
+                <p className="text-xs text-zinc-500 mb-3 text-center font-medium">PERÍODO</p>
+                <div className="flex items-center justify-between gap-3">
+                    <button
+                        onClick={handlePreviousMonth}
+                        className="flex items-center justify-center h-12 w-12 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition-colors"
+                        aria-label="Mês anterior"
+                    >
+                        <ChevronLeft className="h-6 w-6" />
+                    </button>
+
+                    <div className="flex-1 text-center">
+                        <p className="text-lg font-bold text-zinc-900 capitalize">
+                            {format(selectedDate, "MMMM 'de' yyyy", { locale: ptBR })}
+                        </p>
+                    </div>
+
+                    <button
+                        onClick={handleNextMonth}
+                        className="flex items-center justify-center h-12 w-12 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition-colors"
+                        aria-label="Próximo mês"
+                    >
+                        <ChevronRight className="h-6 w-6" />
+                    </button>
+                </div>
+
+                <button
+                    onClick={handleCurrentMonth}
+                    className="w-full mt-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                >
+                    Mês Atual
+                </button>
             </div>
 
             {/* Cards de Resumo Financeiro - MOBILE OPTIMIZED */}

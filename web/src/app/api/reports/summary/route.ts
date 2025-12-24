@@ -1,28 +1,38 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
+import { startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameMonth } from "date-fns";
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
-        const now = new Date();
+        const { searchParams } = new URL(request.url);
+        const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
+        const month = parseInt(searchParams.get('month') || (new Date().getMonth() + 1).toString());
 
-        // Ganhos do Dia
-        const todayStart = startOfDay(now);
-        const todayEnd = endOfDay(now);
+        // Criar datas de início e fim do mês selecionado
+        const selectedDate = new Date(year, month - 1, 1); // month-1 porque Date usa 0-11
+        const monthStart = startOfMonth(selectedDate);
+        const monthEnd = endOfMonth(selectedDate);
 
-        const todayData = await prisma.appointment.aggregate({
-            where: {
-                date: { gte: todayStart, lte: todayEnd },
-                status: "COMPLETED"
-            },
-            _sum: { paidPrice: true },
-            _count: true
-        });
+        // Ganhos do Dia (apenas se for o mês atual)
+        const today = new Date();
+        const isCurrentMonth = isSameMonth(today, selectedDate);
 
-        // Ganhos do Mês
-        const monthStart = startOfMonth(now);
-        const monthEnd = endOfMonth(now);
+        let todayData = { _sum: { paidPrice: null }, _count: 0 };
+        if (isCurrentMonth) {
+            const todayStart = startOfDay(today);
+            const todayEnd = endOfDay(today);
 
+            todayData = await prisma.appointment.aggregate({
+                where: {
+                    date: { gte: todayStart, lte: todayEnd },
+                    status: "COMPLETED"
+                },
+                _sum: { paidPrice: true },
+                _count: true
+            });
+        }
+
+        // Ganhos do Mês Selecionado
         const monthData = await prisma.appointment.aggregate({
             where: {
                 date: { gte: monthStart, lte: monthEnd },
@@ -32,9 +42,9 @@ export async function GET() {
             _count: true
         });
 
-        // Ganhos do Ano
-        const yearStart = startOfYear(now);
-        const yearEnd = endOfYear(now);
+        // Ganhos do Ano Selecionado
+        const yearStart = startOfYear(selectedDate);
+        const yearEnd = endOfYear(selectedDate);
 
         const yearData = await prisma.appointment.aggregate({
             where: {
