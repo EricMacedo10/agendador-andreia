@@ -17,15 +17,16 @@ export async function GET(request: Request) {
         }
 
         const now = new Date();
-        const in10Minutes = addMinutes(now, 10);
-        const in11Minutes = addMinutes(now, 11);
+        const in8Minutes = addMinutes(now, 8);
+        const in15Minutes = addMinutes(now, 15);
 
-        // Find appointments starting in ~10 minutes that haven't been notified
+        // Find appointments starting in 8-15 minutes that haven't been notified
+        // Wider window to account for cron execution delays
         const appointments = await prisma.appointment.findMany({
             where: {
                 date: {
-                    gte: in10Minutes,
-                    lt: in11Minutes
+                    gte: in8Minutes,
+                    lt: in15Minutes
                 },
                 status: {
                     in: ['PENDING', 'CONFIRMED']
