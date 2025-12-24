@@ -239,3 +239,4 @@ Desenvolvido com ❤️ para **Andreia**
 Arquitetura e desenvolvimento: **Eric Macedo**
 
 **Stack moderna • Zero custos • 100% funcional**
+# Trigger deploy
