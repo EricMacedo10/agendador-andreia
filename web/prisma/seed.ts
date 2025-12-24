@@ -10,7 +10,7 @@ async function main() {
         create: {
             email: 'admin@andreia.com',
             name: 'Andreia',
-            password: 'password', // Basic password for dev
+            password: 'IsaManu@14', // Senha segura
         },
     })
 
