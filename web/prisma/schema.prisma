@@ -18,6 +18,7 @@ model User {
   image         String?
   password      String?
   role          Role      @default(USER)
+  fcmToken      String?   // Firebase Cloud Messaging token for push notifications
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
@@ -83,6 +84,9 @@ model Appointment {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Notifications
+  notificationSent Boolean @default(false) // Track if 10-min reminder was sent
   
   // Financials
   paymentMethod PaymentMethod?

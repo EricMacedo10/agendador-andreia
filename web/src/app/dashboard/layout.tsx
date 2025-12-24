@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { PaymentReminder } from "@/components/payment-reminder";
+import { NotificationPrompt } from "@/components/NotificationPrompt";
 
 export default function DashboardLayout({
     children,
@@ -16,6 +17,7 @@ export default function DashboardLayout({
             <main className="flex-1 pb-20 md:pb-0 relative flex flex-col">
                 <PaymentReminder />
                 <div className="mx-auto max-w-5xl p-4 md:p-8 flex-1 w-full flex flex-col">
+                    <NotificationPrompt />
                     {children}
                 </div>
             </main>
