@@ -26,11 +26,23 @@ export default function DashboardPage() {
     const formatCurrency = (value: number) =>
         new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+
+        if (hour >= 0 && hour < 12) {
+            return "Bom dia, Andreia! ☀️";
+        } else if (hour >= 12 && hour < 18) {
+            return "Boa tarde, Andreia! 🌤️";
+        } else {
+            return "Boa noite, Andreia! 🌙";
+        }
+    };
+
     return (
         <div className="space-y-6">
             {/* Cabeçalho Mobile-First */}
             <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-bold text-zinc-900">Bom dia, Andreia! ☀️</h1>
+                <h1 className="text-2xl font-bold text-zinc-900">{getGreeting()}</h1>
                 <p className="text-sm text-zinc-500">Aqui está o resumo do seu dia.</p>
             </div>
 
