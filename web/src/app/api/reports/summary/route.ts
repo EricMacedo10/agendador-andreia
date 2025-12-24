@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameMonth } from "date-fns";
+import { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
     try {
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
         const month = parseInt(searchParams.get('month') || (new Date().getMonth() + 1).toString());
 
         // Criar datas de início e fim do mês selecionado
-        const selectedDate = new Date(year, month - 1, 1); // month-1 porque Date usa 0-11
+        const selectedDate = new Date(year, month - 1, 1);
         const monthStart = startOfMonth(selectedDate);
         const monthEnd = endOfMonth(selectedDate);
 
@@ -17,7 +18,8 @@ export async function GET(request: Request) {
         const today = new Date();
         const isCurrentMonth = isSameMonth(today, selectedDate);
 
-        let todayData = { _sum: { paidPrice: null }, _count: 0 };
+        let todayData: Prisma.GetAppointmentAggregateType<{ _sum: { paidPrice: true }; _count: true }>;
+
         if (isCurrentMonth) {
             const todayStart = startOfDay(today);
             const todayEnd = endOfDay(today);
@@ -30,6 +32,8 @@ export async function GET(request: Request) {
                 _sum: { paidPrice: true },
                 _count: true
             });
+        } else {
+            todayData = { _sum: { paidPrice: null }, _count: 0 };
         }
 
         // Ganhos do Mês Selecionado
