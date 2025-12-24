@@ -1,15 +1,29 @@
 "use client";
 
 import { useNotifications } from '@/hooks/useNotifications';
-import { X } from 'lucide-react';
-import { useState } from 'react';
+import { Bell, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export function NotificationPrompt() {
     const { permission, loading, requestPermission } = useNotifications();
     const [dismissed, setDismissed] = useState(false);
+    const [hasToken, setHasToken] = useState(true); // Assume true to avoid flash
 
-    // Don't show if already granted, denied, or user dismissed
-    if (permission !== 'default' || dismissed) {
+    useEffect(() => {
+        // Check if FCM token is saved in backend
+        fetch('/api/notifications/test')
+            .then(r => r.json())
+            .then(data => {
+                // If no token found, show the prompt
+                if (data.error || !data.tokenExists) {
+                    setHasToken(false);
+                }
+            })
+            .catch(() => setHasToken(false));
+    }, []);
+
+    // Show if: no token saved AND (not dismissed OR permission is default/granted)
+    if (hasToken || dismissed) {
         return null;
     }
 
@@ -18,13 +32,16 @@ export function NotificationPrompt() {
             <div className="flex items-start justify-between gap-3">
                 <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                        <span className="text-2xl">🔔</span>
+                        <Bell className="text-blue-600" size={24} />
                         <h3 className="font-semibold text-gray-900">
-                            Ative as Notificações
+                            {permission === 'granted' ? '🔄 Reativar Notificações' : '🔔 Ativar Notificações'}
                         </h3>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">
-                        Receba alertas 10 minutos antes de cada atendimento, mesmo com o app fechado!
+                        {permission === 'granted'
+                            ? 'Clique para configurar as notificações corretamente e receber alertas 10 minutos antes de cada atendimento!'
+                            : 'Receba alertas 10 minutos antes de cada atendimento, mesmo com o app fechado!'
+                        }
                     </p>
                     <button
                         onClick={requestPermission}
