@@ -1,8 +1,34 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
 import { adminMessaging } from '@/lib/firebase-admin';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
     try {
+        // 🔒 SEGURANÇA: Verificar autenticação
+        const session = await auth();
+
+        if (!session?.user?.email) {
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
+        // 🔒 SEGURANÇA: Rate limiting (5 notificações por minuto por usuário)
+        const limiter = await rateLimit({
+            key: `notif-send-${session.user.email}`,
+            limit: 5,
+            window: 60000 // 1 minuto
+        });
+
+        if (!limiter.success) {
+            return NextResponse.json(
+                { error: 'Too many requests. Please wait before sending more notifications.' },
+                { status: 429 }
+            );
+        }
+
         const { token, title, body, data } = await request.json();
 
         if (!token || !title || !body) {
