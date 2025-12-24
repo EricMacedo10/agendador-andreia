@@ -46,8 +46,17 @@ export async function GET() {
             }
         });
 
+        // Convert Decimal to number for JSON serialization
+        const serializedAppointments = appointments.map(apt => ({
+            ...apt,
+            service: {
+                ...apt.service,
+                price: apt.service.price.toNumber()
+            }
+        }));
+
         return NextResponse.json({
-            appointments,
+            appointments: serializedAppointments,
             count: appointments.length
         });
     } catch (error) {
