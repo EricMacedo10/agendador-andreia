@@ -147,8 +147,8 @@ export default function SchedulePage() {
                         <button
                             onClick={() => setViewMode('month')}
                             className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${viewMode === 'month'
-                                    ? 'bg-rose-600 text-white shadow-md'
-                                    : 'text-zinc-600 hover:bg-zinc-200'
+                                ? 'bg-rose-600 text-white shadow-md'
+                                : 'text-zinc-600 hover:bg-zinc-200'
                                 }`}
                         >
                             <LayoutGrid size={18} />
@@ -157,8 +157,8 @@ export default function SchedulePage() {
                         <button
                             onClick={() => setViewMode('day')}
                             className={`px-4 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${viewMode === 'day'
-                                    ? 'bg-rose-600 text-white shadow-md'
-                                    : 'text-zinc-600 hover:bg-zinc-200'
+                                ? 'bg-rose-600 text-white shadow-md'
+                                : 'text-zinc-600 hover:bg-zinc-200'
                                 }`}
                         >
                             <LayoutList size={18} />
@@ -249,7 +249,8 @@ export default function SchedulePage() {
                                         setViewMode('day');
                                     }}
                                     className={`
-                                        min-h-[60px] md:min-h-[120px] bg-white p-1.5 md:p-2 cursor-pointer transition-all
+                                        min-h-[60px] md:min-h-[120px] max-h-[60px] md:max-h-[120px] 
+                                        bg-white p-1.5 md:p-2 cursor-pointer transition-all overflow-hidden
                                         ${!isCurrentMonth && 'opacity-30 bg-zinc-50'}
                                         ${isToday && 'ring-2 ring-inset ring-rose-500'}
                                         ${isWeekend && isCurrentMonth && 'bg-zinc-50/50'}
