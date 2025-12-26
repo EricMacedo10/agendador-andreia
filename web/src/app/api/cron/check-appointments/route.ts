@@ -33,16 +33,16 @@ export async function GET(request: Request) {
         }
 
         const now = new Date();
-        const in8Minutes = addMinutes(now, 8);
-        const in15Minutes = addMinutes(now, 15);
+        const in5Minutes = addMinutes(now, 5);
+        const in20Minutes = addMinutes(now, 20);
 
-        // Find appointments starting in 8-15 minutes that haven't been notified
-        // Wider window to account for cron execution delays
+        // Find appointments starting in 5-20 minutes that haven't been notified
+        // Wider window to account for timezone differences (UTC vs local)
         const appointments = await prisma.appointment.findMany({
             where: {
                 date: {
-                    gte: in8Minutes,
-                    lt: in15Minutes
+                    gte: in5Minutes,
+                    lt: in20Minutes
                 },
                 status: {
                     in: ['PENDING', 'CONFIRMED']
@@ -79,7 +79,7 @@ export async function GET(request: Request) {
             marked: markedCount,
             debug: {
                 appointmentsFound: appointments.length,
-                timeWindow: `${in8Minutes.toISOString()} - ${in15Minutes.toISOString()}`
+                timeWindow: `${in5Minutes.toISOString()} - ${in20Minutes.toISOString()}`
             }
         });
     } catch (error) {
