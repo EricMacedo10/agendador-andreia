@@ -6,7 +6,7 @@ export async function middleware(request: NextRequest) {
     const session = await auth()
 
     // Rotas públicas (não requerem autenticação)
-    const publicRoutes = ['/api/auth', '/book', '/api/setup-admin']
+    const publicRoutes = ['/api/auth', '/api/cron', '/book', '/api/setup-admin']
     const isPublicRoute = publicRoutes.some(route =>
         request.nextUrl.pathname.startsWith(route)
     )
