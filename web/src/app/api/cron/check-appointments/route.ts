@@ -55,47 +55,29 @@ export async function GET(request: Request) {
             }
         });
 
-        let sentCount = 0;
+        let markedCount = 0;
 
-        // Send notification for each appointment
+        // Mark appointments as needing notification (in-app system)
         for (const appointment of appointments) {
-            if (appointment.user.fcmToken) {
-                try {
-                    // Send notification
-                    await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/notifications/send`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            token: appointment.user.fcmToken,
-                            title: '⏰ Atendimento em 10 minutos!',
-                            body: `Olá, Andreia! A cliente ${appointment.client.name} irá chegar em 10 minutos.`,
-                            data: {
-                                appointmentId: appointment.id,
-                                clientName: appointment.client.name
-                            }
-                        })
-                    });
+            try {
+                // Simply mark as notified - dashboard will show via reminders
+                await prisma.appointment.update({
+                    where: { id: appointment.id },
+                    data: { notificationSent: true }
+                });
 
-                    // Mark as notified
-                    await prisma.appointment.update({
-                        where: { id: appointment.id },
-                        data: { notificationSent: true }
-                    });
-
-                    sentCount++;
-                } catch (error) {
-                    console.error(`Failed to send notification for appointment ${appointment.id}:`, error);
-                }
+                markedCount++;
+            } catch (error) {
+                console.error(`Failed to mark appointment ${appointment.id}:`, error);
             }
         }
 
         return NextResponse.json({
             success: true,
             checked: appointments.length,
-            sent: sentCount,
+            marked: markedCount,
             debug: {
                 appointmentsFound: appointments.length,
-                usersWithToken: appointments.filter(a => a.user.fcmToken).length,
                 timeWindow: `${in8Minutes.toISOString()} - ${in15Minutes.toISOString()}`
             }
         });
