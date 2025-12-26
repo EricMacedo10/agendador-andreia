@@ -1,9 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 import { auth } from '@/auth';
-import { adminMessaging } from '@/lib/firebase-admin';
+// TEMPORARY: Comentado para deployment - Vercel cache issue
+// import { adminMessaging } from '@/lib/firebase-admin';
 import { rateLimit } from '@/lib/rate-limit';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
         // 🔒 SEGURANÇA: Verificar autenticação
         const session = await auth();
@@ -47,11 +49,13 @@ export async function POST(request: Request) {
             token
         };
 
-        const response = await adminMessaging.send(message);
+        // TEMPORARY: Firebase notifications disabled during deployment fix
+        // const response = await adminMessaging.send(message);
 
         return NextResponse.json({
             success: true,
-            messageId: response
+            message: 'Notification endpoint temporarily disabled'
+            // messageId: response
         });
     } catch (error) {
         console.error('Error sending notification:', error);
