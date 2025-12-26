@@ -92,7 +92,12 @@ export async function GET(request: Request) {
         return NextResponse.json({
             success: true,
             checked: appointments.length,
-            sent: sentCount
+            sent: sentCount,
+            debug: {
+                appointmentsFound: appointments.length,
+                usersWithToken: appointments.filter(a => a.user.fcmToken).length,
+                timeWindow: `${in8Minutes.toISOString()} - ${in15Minutes.toISOString()}`
+            }
         });
     } catch (error) {
         console.error('Error in cron job:', error);
