@@ -69,7 +69,7 @@ model BusinessSettings {
 
 model Appointment {
   id        String   @id @default(cuid())
-  date      DateTime
+  date      DateTime @db.Timestamptz(6)
   durationMinutes Int?   // Optional override for service duration
   status    String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, COMPLETED
   
