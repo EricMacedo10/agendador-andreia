@@ -11,7 +11,26 @@ export function useNotifications() {
     useEffect(() => {
         // Check current permission status
         if (typeof window !== 'undefined' && 'Notification' in window) {
-            setPermission(Notification.permission);
+            const currentPermission = Notification.permission;
+            setPermission(currentPermission);
+
+            // 🔄 AUTO-SYNC: Se já tem permissão, garante que o token está no backend
+            // Isso corrige o problema onde a permissão existe mas o banco foi resetado
+            if (currentPermission === 'granted') {
+                requestNotificationPermission()
+                    .then(async (fcmToken) => {
+                        if (fcmToken) {
+                            setToken(fcmToken);
+                            // Silently register in backend
+                            await fetch('/api/notifications/register', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ token: fcmToken })
+                            });
+                        }
+                    })
+                    .catch((err) => console.error('Auto-sync failed:', err));
+            }
         }
 
         // Listen to foreground messages
