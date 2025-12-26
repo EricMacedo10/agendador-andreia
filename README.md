@@ -211,7 +211,18 @@ npx prisma generate      # Gerar cliente Prisma
 
 ---
 
+
+## ⚠️ Problemas Conhecidos (Known Issues)
+
+### Notificações Push (Firebase)
+- **Status:** Implementado, mas instável.
+- **Sintoma:** Usuário vê "Ativadas" mas não recebe notificações, ou recebe erro "No FCM token found" mesmo com permissão.
+- **Causa:** Desincronização entre navegador e service worker, ou limitações de entrega do plano gratuito do Firebase/Vercel.
+- **Workaround:** Sistema de auto-sync implementado para tentar recuperar o token ao recarregar a página.
+- **Solução Definitiva:** Necessária investigação aprofundada futura para robustez total ou troca de provedor.
+
 ## 🐛 Troubleshooting
+
 
 ### Erro de Deploy no Vercel
 ```
