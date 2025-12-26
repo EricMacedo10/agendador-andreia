@@ -10,18 +10,6 @@ export async function GET(request: NextRequest) {
 
         if (!session?.user) {
             return NextResponse.json(
-                { error: 'Não autenticado' },
-                { status: 401 }
-            );
-        }
-
-        // Check if user is ADMIN
-        const user = await prisma.user.findUnique({
-            where: { email: session.user.email || undefined }
-        });
-
-        if (!user || user.role !== 'ADMIN') {
-            return NextResponse.json(
                 { error: 'Apenas administradores podem fazer backup' },
                 { status: 403 }
             );
@@ -62,7 +50,7 @@ export async function GET(request: NextRequest) {
         const backup = {
             version: '1.0',
             timestamp: new Date().toISOString(),
-            exportedBy: user.email,
+            exportedBy: session.user.email,
             data: {
                 users,
                 clients,
