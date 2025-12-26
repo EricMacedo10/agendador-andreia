@@ -31,9 +31,21 @@ export { app, messaging };
 // Request FCM token
 export async function requestNotificationPermission(): Promise<string | null> {
     try {
+        // Ensure messaging is supported and initialized
+        const supported = await isSupported();
+        if (!supported) {
+            console.log('Firebase Messaging not supported');
+            return null;
+        }
+
+        // Initialize messaging if not already done
+        if (!messaging) {
+            messaging = getMessaging(app);
+        }
+
         const permission = await Notification.requestPermission();
 
-        if (permission === 'granted' && messaging) {
+        if (permission === 'granted') {
             const token = await getToken(messaging, {
                 vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
             });
