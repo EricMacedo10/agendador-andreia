@@ -1,6 +1,7 @@
 
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { auth } from "@/auth"
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
@@ -120,6 +121,16 @@ export async function POST(request: Request) {
             );
         }
 
+        // Create appointment with session user
+        const session = await auth();
+
+        if (!session?.user?.email) {
+            return NextResponse.json(
+                { error: "Usuário não autenticado." },
+                { status: 401 }
+            );
+        }
+
         const appointment = await prisma.appointment.create({
             data: {
                 date: appointmentDate,
@@ -129,8 +140,7 @@ export async function POST(request: Request) {
                 paidPrice: body.paidPrice ? Number(body.paidPrice) : undefined,
                 client: { connect: { id: clientId } },
                 service: { connect: { id: serviceId } },
-                // Fallback to first user if admin doesn't exist, or just use admin
-                user: { connect: { email: "admin@andreia.com" } }
+                user: { connect: { email: session.user.email } }
             }
         });
 
