@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Calendar, Users, Briefcase, Settings, LogOut, TrendingUp } from "lucide-react";
+import { Home, Calendar, Users, Briefcase, Settings, LogOut, TrendingUp, Database } from "lucide-react";
 import { clsx } from "clsx";
 import { signOut } from "next-auth/react";
 
@@ -45,6 +45,13 @@ export function Sidebar() {
             </nav>
 
             <div className="border-t border-zinc-200 p-4">
+                <Link
+                    href="/dashboard/backup"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 mb-1"
+                >
+                    <Database className="h-5 w-5" />
+                    Backup
+                </Link>
                 <Link
                     href="/dashboard/settings"
                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
