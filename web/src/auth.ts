@@ -26,9 +26,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     return null
                 }
 
-                // In a real app, hash and compare password. 
-                // For this restart/dev phase, we'll accept the plain text match or a simple check.
-                // TODO: Implement bcrypt
+                // TEMPORARY: Plain-text comparison for testing
+                // TODO: Implement edge-compatible password hashing (Web Crypto API)
+                // bcryptjs is incompatible with Next.js 16.1.0 + Turbopack Edge Runtime
                 if (user.password !== credentials.password) {
                     return null
                 }
@@ -38,5 +38,3 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }),
     ],
 })
-
-

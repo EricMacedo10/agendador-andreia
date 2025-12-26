@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Calendar, TrendingUp, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
+import { NotificationStatusBadge } from "@/components/NotificationStatusBadge";
 
 export default function DashboardPage() {
     const [stats, setStats] = useState({
@@ -40,10 +41,13 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-6">
-            {/* Cabeçalho Mobile-First */}
-            <div className="flex flex-col gap-1">
-                <h1 className="text-2xl font-bold text-zinc-900">{getGreeting()}</h1>
-                <p className="text-sm text-zinc-500">Aqui está o resumo do seu dia.</p>
+            {/* Cabeçalho Mobile-First com Badge de Notificações */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-2xl font-bold text-zinc-900">{getGreeting()}</h1>
+                    <p className="text-sm text-zinc-500">Aqui está o resumo do seu dia.</p>
+                </div>
+                <NotificationStatusBadge />
             </div>
 
             {/* Cards de Resumo */}

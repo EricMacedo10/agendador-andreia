@@ -53,7 +53,7 @@ export function Sidebar() {
                     Configurações
                 </Link>
                 <button
-                    onClick={() => signOut({ callbackUrl: "/api/auth/signin" })}
+                    onClick={() => window.location.href = "/logout"}
                     className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
                 >
                     <LogOut className="h-5 w-5" />

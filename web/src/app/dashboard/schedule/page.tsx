@@ -249,32 +249,46 @@ export default function SchedulePage() {
                                         setViewMode('day');
                                     }}
                                     className={`
-                                        min-h-[120px] bg-white p-2 cursor-pointer transition-all
+                                        min-h-[60px] md:min-h-[120px] bg-white p-1.5 md:p-2 cursor-pointer transition-all
                                         ${!isCurrentMonth && 'opacity-30 bg-zinc-50'}
                                         ${isToday && 'ring-2 ring-inset ring-rose-500'}
                                         ${isWeekend && isCurrentMonth && 'bg-zinc-50/50'}
                                         hover:bg-rose-50 hover:shadow-md hover:z-10
                                     `}
                                 >
-                                    <div className={`font-bold text-sm mb-2 ${isToday ? 'text-rose-600' : 'text-zinc-700'}`}>
+                                    <div className={`font-bold text-xs md:text-sm mb-1 md:mb-2 ${isToday ? 'text-rose-600' : 'text-zinc-700'}`}>
                                         {format(day, 'd')}
                                     </div>
 
-                                    {/* Show client names */}
-                                    <div className="space-y-1">
-                                        {dayAppointments.slice(0, 3).map((appt) => (
+                                    {/* Show client names - max 2 on mobile, 3 on desktop */}
+                                    <div className="space-y-0.5 md:space-y-1">
+                                        {dayAppointments.slice(0, 2).map((appt) => (
                                             <div
                                                 key={appt.id}
-                                                className="text-xs bg-rose-100 text-rose-900 px-1.5 py-0.5 rounded truncate font-medium"
+                                                className="text-[10px] md:text-xs bg-rose-100 text-rose-900 px-1 md:px-1.5 py-0.5 rounded truncate font-medium"
                                                 title={`${appt.client.name} - ${appt.service.name}`}
                                             >
                                                 {appt.client.name}
                                             </div>
                                         ))}
-                                        {dayAppointments.length > 3 && (
-                                            <div className="text-xs text-zinc-500 font-bold">
-                                                +{dayAppointments.length - 3} mais
-                                            </div>
+                                        {/* Show 3rd appointment only on desktop */}
+                                        {dayAppointments.length > 2 && (
+                                            <>
+                                                <div className="hidden md:block text-xs bg-rose-100 text-rose-900 px-1.5 py-0.5 rounded truncate font-medium"
+                                                    title={`${dayAppointments[2].client.name} - ${dayAppointments[2].service.name}`}
+                                                >
+                                                    {dayAppointments[2].client.name}
+                                                </div>
+                                                {dayAppointments.length > 3 && (
+                                                    <div className="text-[10px] md:text-xs text-zinc-500 font-bold">
+                                                        +{dayAppointments.length - 3} mais
+                                                    </div>
+                                                )}
+                                                {/* Mobile: show "+X mais" for 3+ appointments */}
+                                                <div className="md:hidden text-[10px] text-zinc-500 font-bold">
+                                                    +{dayAppointments.length - 2} mais
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                 </div>

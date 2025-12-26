@@ -39,7 +39,7 @@ export function MobileNav() {
           );
         })}
         <button
-          onClick={() => signOut({ callbackUrl: "/api/auth/signin" })}
+          onClick={() => window.location.href = "/logout"}
           className="flex flex-col items-center justify-center p-2 text-xs font-medium text-zinc-500 hover:text-red-600 transition-colors"
         >
           <LogOut className="mb-1 h-6 w-6" />
