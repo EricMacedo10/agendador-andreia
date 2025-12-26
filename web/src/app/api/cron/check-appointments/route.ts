@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma';
 import { addMinutes } from 'date-fns';
 import { rateLimit } from '@/lib/rate-limit';
 
+// In-app notification system - marks appointments 8-15min before scheduled time
 export async function GET(request: Request) {
     try {
         // Verify authorization - accept via header OR query parameter
