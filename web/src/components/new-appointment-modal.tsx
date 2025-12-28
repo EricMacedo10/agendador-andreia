@@ -181,9 +181,10 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                                     onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
                                 >
                                     <option value="">Selecione um cliente...</option>
-                                    {clients.map(c => (
+                                    {clients.sort((a, b) => a.name.localeCompare(b.name)).map(c => (
                                         <option key={c.id} value={c.id}>{c.name}</option>
                                     ))}
+
                                 </select>
                             </div>
 

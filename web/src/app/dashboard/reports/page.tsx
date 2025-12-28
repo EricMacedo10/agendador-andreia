@@ -267,8 +267,9 @@ export default function ReportsPage() {
                                     </div>
                                     <div>
                                         <p className="font-medium text-zinc-900">{client.name}</p>
-                                        <p className="text-sm text-zinc-500">{formatCurrency(client.totalSpent)} gasto</p>
+                                        <p className="text-sm font-bold text-blue-600">{formatCurrency(client.totalSpent)}</p>
                                     </div>
+
                                 </div>
                                 <div className="text-right">
                                     <p className="font-bold text-blue-600 text-lg">{client.visits}x</p>

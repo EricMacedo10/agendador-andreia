@@ -82,10 +82,13 @@ export default function ClientsPage() {
         }
     };
 
-    const filteredClients = clients.filter(c =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.phone.includes(searchTerm)
-    );
+    const filteredClients = clients
+        .filter(c =>
+            c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.phone.includes(searchTerm)
+        )
+        .sort((a, b) => a.name.localeCompare(b.name));
+
 
     return (
         <div className="space-y-6 text-zinc-900">

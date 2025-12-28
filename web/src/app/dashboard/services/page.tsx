@@ -179,17 +179,20 @@ export default function ServicesPage() {
                             )}
 
                             <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-3">
-                                    <h3 className="font-semibold text-lg truncate">{service.name}</h3>
-                                    <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${service.visible ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}`}>
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex flex-col gap-1">
+                                        <h3 className="font-semibold text-lg whitespace-normal break-words leading-tight">{service.name}</h3>
+                                        <p className="text-zinc-400 text-sm whitespace-normal break-words">{service.description}</p>
+                                    </div>
+                                    <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 self-start ${service.visible ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'}`}>
                                         {service.visible ? 'Visível' : 'Oculto'}
                                     </span>
                                 </div>
-                                <p className="text-zinc-400 text-sm mt-1 truncate">{service.description}</p>
-                                <div className="text-yellow-500 mt-2 font-medium truncate">
+                                <div className="text-yellow-500 mt-2 font-medium">
                                     R$ {Number(service.price).toFixed(2)} • {service.duration} min
                                 </div>
                             </div>
+
                         </div>
 
                         <div className="flex gap-1 flex-shrink-0 self-end md:self-center">

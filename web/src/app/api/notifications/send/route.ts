@@ -48,7 +48,12 @@ export async function POST(request: NextRequest) {
             token
         };
 
+        if (!adminMessaging) {
+            throw new Error("Firebase Admin not initialized");
+        }
+
         const response = await adminMessaging.send(message);
+
 
         return NextResponse.json({
             success: true,

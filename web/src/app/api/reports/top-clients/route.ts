@@ -39,9 +39,10 @@ export async function GET(request: Request) {
             return acc;
         }, {});
 
-        // Converter para array e ordenar por visitas
+        // Converter para array e ordenar por valor gasto (R$)
         const clientsArray = Object.values(clientStats);
-        clientsArray.sort((a: any, b: any) => b.visits - a.visits);
+        clientsArray.sort((a: any, b: any) => b.totalSpent - a.totalSpent);
+
 
         // Retornar top 10
         return NextResponse.json({

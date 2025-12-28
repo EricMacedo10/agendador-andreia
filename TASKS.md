@@ -66,7 +66,13 @@ Este arquivo guiará o desenvolvimento do "Agendador Andreia" passo a passo.
     - [x] Criar Manifesto (ícone na tela inicial).
     - [x] Configurar Service Worker (cache básico).
 
+- [x] **Melhorias de Feedback (Andreia)**
+    - [x] **UI Serviços**: Quebra de linha em nomes longos (sem quebrar palavras).
+    - [x] **Clientes**: Ordenação alfabética no filtro/lista.
+    - [x] **VIP**: Ranking por valor gasto (R$) e não por quantidade de visitas.
+
 ## Conclusão
 Projeto configurado e implantado em 18/12/2025.
 - Repositório Git configurado com segurança (segredos ignorados).
 - Deploy realizado no Vercel.
+
