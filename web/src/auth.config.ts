@@ -37,7 +37,6 @@ export const authConfig = {
             return token;
         }
     },
-},
     secret: process.env.AUTH_SECRET,
     trustHost: true,
 } satisfies NextAuthConfig
