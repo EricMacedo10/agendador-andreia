@@ -10,7 +10,13 @@ async function main() {
         create: {
             email: 'admin@andreia.com',
             name: 'Andreia',
-            password: process.env.ADMIN_PASSWORD || 'insira-sua-senha-aqui', // Senha via variável de ambiente
+            // Hash password even in seed
+            // Note: Since we can't easily import bcrypt here if it's not a module, rely on environment or pre-hashed
+            // For simplicity in this specific seed file, let's assume we want to set it properly.
+            // However, prisma seed runs in TS node. We can use bcrypt.
+            password: process.env.ADMIN_PASSWORD ?
+                await require('bcryptjs').hash(process.env.ADMIN_PASSWORD, 10) :
+                await require('bcryptjs').hash('Isamu@14', 10), // Default local dev password hashed
         },
     })
 

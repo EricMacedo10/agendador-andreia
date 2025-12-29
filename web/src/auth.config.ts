@@ -37,7 +37,7 @@ export const authConfig = {
             return token;
         }
     },
-    // Hardcoded secret to bypass Vercel Edge environment variable issues
-    secret: "andreia-agendador-secret-key-2024-fixed",
+},
+    secret: process.env.AUTH_SECRET,
     trustHost: true,
 } satisfies NextAuthConfig
