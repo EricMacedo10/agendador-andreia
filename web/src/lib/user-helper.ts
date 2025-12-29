@@ -16,7 +16,7 @@ export async function getAdminUser() {
         data: {
             name: "Eric Adm",
             email: ADMIN_EMAIL,
-            password: "adm123", // In a real app, this should be hashed
+            password: process.env.DEFAULT_ADMIN_PASSWORD || "adm123", // Default password, should be changed
         },
     });
 }

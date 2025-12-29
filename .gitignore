@@ -10,3 +10,5 @@ yarn-debug.log
 .idea
 .vercel
 .env*.local
+
+SENHA_ATUALIZAR_PRODUCAO.md

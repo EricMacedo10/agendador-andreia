@@ -10,7 +10,7 @@ async function main() {
         create: {
             email: 'admin@andreia.com',
             name: 'Andreia',
-            password: 'IsaManu@14', // Senha segura
+            password: process.env.ADMIN_PASSWORD || 'insira-sua-senha-aqui', // Senha via variável de ambiente
         },
     })
 
