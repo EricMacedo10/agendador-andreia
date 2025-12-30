@@ -3,7 +3,6 @@ import Credentials from "next-auth/providers/credentials"
 import prisma from "@/lib/prisma"
 import { authConfig } from "./auth.config"
 
-// @ts-ignore
 import bcrypt from "bcryptjs"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -25,7 +24,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     },
                 })
 
-                if (!user) {
+                if (!user || !user.password) {
                     return null
                 }
 
@@ -35,7 +34,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                 // 1. Tentar comparar como Hash (bcrypt)
                 try {
-                    isValid = await bcrypt.compare(inputPassword, user.password);
+                    isValid = (await bcrypt.compare(inputPassword, user.password)) as unknown as boolean;
                 } catch (error) {
                     // Se der erro (ex: senha no banco não é hash válido), assumimos que não é válido por enquanto
                     isValid = false;

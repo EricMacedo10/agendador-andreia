@@ -1,6 +1,7 @@
 // @ts-ignore
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
+import prisma from "@/lib/prisma";
 
 export const ADMIN_EMAIL = "eric.adm@agendador.com";
 
