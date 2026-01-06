@@ -247,11 +247,23 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                                                         type="checkbox"
                                                         checked={isSelected}
                                                         onChange={() => {
+                                                            let newServices;
                                                             if (isSelected) {
-                                                                setSelectedServices(prev => prev.filter(s => s.id !== service.id));
+                                                                newServices = selectedServices.filter(s => s.id !== service.id);
                                                             } else {
-                                                                setSelectedServices(prev => [...prev, service]);
+                                                                newServices = [...selectedServices, service];
                                                             }
+                                                            setSelectedServices(newServices);
+
+                                                            // Recalculate totals
+                                                            const totalDuration = newServices.reduce((sum, s) => sum + s.duration, 0);
+                                                            const totalPrice = newServices.reduce((sum, s) => sum + Number(s.price), 0);
+
+                                                            setFormData(prev => ({
+                                                                ...prev,
+                                                                duration: totalDuration.toString(),
+                                                                price: totalPrice.toFixed(2) // Ensure proper decimal format
+                                                            }));
                                                         }}
                                                         className="w-5 h-5 text-rose-600 rounded focus:ring-rose-500"
                                                     />
