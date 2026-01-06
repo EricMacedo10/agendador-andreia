@@ -18,14 +18,15 @@ interface NewAppointmentModalProps {
 export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDate, appointmentToEdit }: NewAppointmentModalProps) {
     const [clients, setClients] = useState<Client[]>([]);
     const [services, setServices] = useState<Service[]>([]);
+    const [selectedServices, setSelectedServices] = useState<Service[]>([]);  // ← NEW: Multiple service selection
     const [isLoading, setIsLoading] = useState(true);
 
     const [formData, setFormData] = useState({
         clientId: "",
-        serviceId: "",
+        serviceId: "",  // DEPRECATED - Now using selectedServices array
         date: preselectedDate ? format(preselectedDate, "yyyy-MM-dd") : "",
         time: "09:00",
-        duration: "30",
+        duration: "30",  // DEPRECATED - Calculated from selectedServices
         isCheckout: false,
         price: "",
         paymentMethod: "PIX"
@@ -36,17 +37,37 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
             fetchData();
             if (appointmentToEdit) {
                 const dt = new Date(appointmentToEdit.date);
+
+                // ← NEW: Load existing services into selectedServices
+                if (appointmentToEdit.services && appointmentToEdit.services.length > 0) {
+                    const existingServices = appointmentToEdit.services.map((as: any) => ({
+                        id: as.serviceId,
+                        name: as.service.name,
+                        duration: as.service.duration,
+                        price: Number(as.priceSnapshot)
+                    }));
+                    setSelectedServices(existingServices);
+                }
+
+                // ← FIX: Use first service for backward compat, calculate total duration and price
+                const firstService = appointmentToEdit.services?.[0];
+                const totalDuration = appointmentToEdit.totalDurationMinutes ||
+                    (appointmentToEdit.services?.reduce((sum, s) => sum + s.service.duration, 0) || 30);
+                const totalPrice = appointmentToEdit.paidPrice ||
+                    appointmentToEdit.services?.reduce((sum, s) => sum + Number(s.priceSnapshot), 0) || 0;
+
                 setFormData({
                     clientId: appointmentToEdit.clientId,
-                    serviceId: appointmentToEdit.serviceId,
+                    serviceId: firstService?.serviceId || '',  // Use first service for now
                     date: format(dt, "yyyy-MM-dd"),
                     time: format(dt, "HH:mm"),
-                    duration: appointmentToEdit.durationMinutes?.toString() || appointmentToEdit.service.duration.toString(),
+                    duration: totalDuration.toString(),
                     isCheckout: false,
-                    price: appointmentToEdit.paidPrice ? appointmentToEdit.paidPrice.toString() : (appointmentToEdit.service.price ? appointmentToEdit.service.price.toString() : ""),
+                    price: appointmentToEdit.paidPrice ? appointmentToEdit.paidPrice.toString() : totalPrice.toString(),
                     paymentMethod: appointmentToEdit.paymentMethod || "PIX"
                 });
             } else if (preselectedDate) {
+                setSelectedServices([]);  // ← Clear selected services
                 setFormData(prev => ({
                     ...prev,
                     clientId: "",
@@ -59,6 +80,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                     paymentMethod: "PIX"
                 }));
             } else {
+                setSelectedServices([]);  // ← Clear selected services
                 setFormData(prev => ({
                     ...prev,
                     clientId: "",
@@ -72,16 +94,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
         }
     }, [isOpen, preselectedDate, appointmentToEdit]);
 
-    const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const sId = e.target.value;
-        const service = services.find(s => s.id === sId);
-        setFormData(prev => ({
-            ...prev,
-            serviceId: sId,
-            duration: service ? service.duration.toString() : "30",
-            price: service ? service.price.toString() : prev.price
-        }));
-    };
+
 
     const fetchData = async () => {
         try {
@@ -114,6 +127,13 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Validation: at least 1 service required
+        if (!formData.isCheckout && selectedServices.length === 0) {
+            alert("Selecione pelo menos 1 serviço");
+            return;
+        }
+
         try {
             const dateTime = new Date(`${formData.date}T${formData.time}`);
 
@@ -122,9 +142,8 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
 
             const body: any = {
                 clientId: formData.clientId,
-                serviceId: formData.serviceId,
+                serviceIds: selectedServices.map(s => s.id),  // ← NEW: Array of service IDs
                 date: dateTime.toISOString(),
-                durationMinutes: formData.duration,
             };
 
             if (formData.isCheckout) {
@@ -142,6 +161,18 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
             if (res.ok) {
                 onSuccess();
                 onClose();
+                // Reset state
+                setSelectedServices([]);
+                setFormData({
+                    clientId: "",
+                    serviceId: "",
+                    date: "",
+                    time: "09:00",
+                    duration: "30",
+                    isCheckout: false,
+                    price: "",
+                    paymentMethod: "PIX"
+                });
             } else {
                 const err = await res.json();
                 alert(`Erro ao agendar: ${err.error || "Erro desconhecido"}`);
@@ -188,35 +219,68 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                                 </select>
                             </div>
 
+                            {/* SERVICE SELECTION - Multiple Checkboxes */}
                             <div>
-                                <label className="block text-sm text-zinc-600 font-bold mb-1 flex items-center gap-2">
-                                    <Scissors size={16} className="text-rose-500" /> Serviço
+                                <label className="block text-sm text-zinc-600 font-bold mb-2 flex items-center gap-2">
+                                    <Scissors size={16} className="text-rose-500" /> Serviços *
                                 </label>
-                                <select
-                                    required
-                                    className="w-full bg-white border border-zinc-300 rounded-lg p-3 text-black font-bold focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
-                                    value={formData.serviceId}
-                                    onChange={handleServiceChange}
-                                >
-                                    <option value="">Selecione um serviço...</option>
-                                    {services.map(s => (
-                                        <option key={s.id} value={s.id}>{s.name} ({s.duration} min - R$ {Number(s.price).toFixed(2)})</option>
-                                    ))}
-                                </select>
+
+                                {/* Scrollable checkbox list */}
+                                <div className="max-h-60 overflow-y-auto border-2 border-zinc-200 rounded-xl p-3 space-y-2 bg-zinc-50">
+                                    {services.map(service => {
+                                        const isSelected = selectedServices.some(s => s.id === service.id);
+
+                                        return (
+                                            <label
+                                                key={service.id}
+                                                className={`
+                                                    flex items-center justify-between p-3 rounded-lg cursor-pointer
+                                                    transition-all border-2
+                                                    ${isSelected
+                                                        ? 'bg-rose-50 border-rose-500 shadow-md'
+                                                        : 'bg-white border-zinc-200 hover:border-rose-300 hover:shadow-sm'
+                                                    }
+                                                `}
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSelected}
+                                                        onChange={() => {
+                                                            if (isSelected) {
+                                                                setSelectedServices(prev => prev.filter(s => s.id !== service.id));
+                                                            } else {
+                                                                setSelectedServices(prev => [...prev, service]);
+                                                            }
+                                                        }}
+                                                        className="w-5 h-5 text-rose-600 rounded focus:ring-rose-500"
+                                                    />
+                                                    <div>
+                                                        <p className="font-semibold text-zinc-900">{service.name}</p>
+                                                        <p className="text-xs text-zinc-500">
+                                                            {service.duration} min • R$ {Number(service.price).toFixed(2)}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                {/* Visual indicator */}
+                                                {isSelected && (
+                                                    <div className="w-2 h-2 bg-rose-600 rounded-full animate-pulse" />
+                                                )}
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Validation message */}
+                                {selectedServices.length === 0 && (
+                                    <p className="text-sm text-red-600 mt-1 font-medium">
+                                        ⚠️ Selecione pelo menos 1 serviço
+                                    </p>
+                                )}
                             </div>
 
-                            <div>
-                                <label className="block text-sm text-zinc-600 font-bold mb-1 flex items-center gap-2">
-                                    <Clock size={16} className="text-rose-500" /> Duração (minutos)
-                                </label>
-                                <input
-                                    type="number"
-                                    required
-                                    className="w-full bg-white border border-zinc-300 rounded-lg p-3 text-black font-bold focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500"
-                                    value={formData.duration}
-                                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                                />
-                            </div>
+
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>

@@ -1,80 +1,122 @@
-import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { startOfDay, endOfDay, startOfMonth, endOfMonth, startOfYear, endOfYear, isSameMonth } from "date-fns";
-import { Prisma } from "@prisma/client";
+import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
+import prisma from '@/lib/prisma';
 
+/**
+ * GET /api/reports/summary?year=2025
+ * Returns financial summary for a specific year including:
+ * - Total revenue and appointments
+ * - Average ticket
+ * - Monthly breakdown (all 12 months)
+ * - Payment method breakdown
+ */
 export async function GET(request: Request) {
     try {
-        const { searchParams } = new URL(request.url);
-        const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
-        const month = parseInt(searchParams.get('month') || (new Date().getMonth() + 1).toString());
-
-        // Criar datas de início e fim do mês selecionado
-        const selectedDate = new Date(year, month - 1, 1);
-        const monthStart = startOfMonth(selectedDate);
-        const monthEnd = endOfMonth(selectedDate);
-
-        // Ganhos do Dia (apenas se for o mês atual)
-        const today = new Date();
-        const isCurrentMonth = isSameMonth(today, selectedDate);
-
-        let todayData: Prisma.GetAppointmentAggregateType<{ _sum: { paidPrice: true }; _count: true }>;
-
-        if (isCurrentMonth) {
-            const todayStart = startOfDay(today);
-            const todayEnd = endOfDay(today);
-
-            todayData = await prisma.appointment.aggregate({
-                where: {
-                    date: { gte: todayStart, lte: todayEnd },
-                    status: "COMPLETED"
-                },
-                _sum: { paidPrice: true },
-                _count: true
-            });
-        } else {
-            todayData = { _sum: { paidPrice: null }, _count: 0 };
+        // Authentication check
+        const session = await auth();
+        if (!session?.user?.email) {
+            return NextResponse.json(
+                { error: 'Não autorizado' },
+                { status: 401 }
+            );
         }
 
-        // Ganhos do Mês Selecionado
-        const monthData = await prisma.appointment.aggregate({
-            where: {
-                date: { gte: monthStart, lte: monthEnd },
-                status: "COMPLETED"
-            },
-            _sum: { paidPrice: true },
-            _count: true
+        // Get userId from email
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+            select: { id: true }
         });
 
-        // Ganhos do Ano Selecionado
-        const yearStart = startOfYear(selectedDate);
-        const yearEnd = endOfYear(selectedDate);
+        if (!user) {
+            return NextResponse.json(
+                { error: 'Usuário não encontrado' },
+                { status: 404 }
+            );
+        }
 
-        const yearData = await prisma.appointment.aggregate({
+        // Parse year parameter
+        const { searchParams } = new URL(request.url);
+        const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
+
+        // Fetch appointments for the year
+        const appointments = await prisma.appointment.findMany({
             where: {
-                date: { gte: yearStart, lte: yearEnd },
-                status: "COMPLETED"
+                userId: user.id,
+                status: 'COMPLETED',
+                date: {
+                    gte: new Date(`${year}-01-01T00:00:00.000Z`),
+                    lte: new Date(`${year}-12-31T23:59:59.999Z`)
+                }
             },
-            _sum: { paidPrice: true },
-            _count: true
-        });
-
-        return NextResponse.json({
-            today: {
-                revenue: Number(todayData._sum.paidPrice || 0),
-                count: todayData._count
-            },
-            month: {
-                revenue: Number(monthData._sum.paidPrice || 0),
-                count: monthData._count
-            },
-            year: {
-                revenue: Number(yearData._sum.paidPrice || 0),
-                count: yearData._count
+            select: {
+                date: true,
+                paidPrice: true,
+                paymentMethod: true
             }
         });
+
+        // Calculate totals
+        const totalRevenue = appointments.reduce((sum, a) => sum + Number(a.paidPrice || 0), 0);
+        const totalAppointments = appointments.length;
+        const averageTicket = totalAppointments > 0 ? totalRevenue / totalAppointments : 0;
+
+        // Monthly breakdown - initialize all 12 months
+        const monthNames = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ];
+
+        const monthlyData = monthNames.map((name, index) => ({
+            month: index + 1,
+            monthName: name,
+            revenue: 0,
+            appointments: 0
+        }));
+
+        // Fill in actual data
+        appointments.forEach(appt => {
+            const month = new Date(appt.date).getMonth(); // 0-indexed
+            monthlyData[month].revenue += Number(appt.paidPrice || 0);
+            monthlyData[month].appointments++;
+        });
+
+        // Payment method breakdown
+        const paymentMethodMap = new Map<string, { count: number; total: number }>();
+
+        appointments.forEach(appt => {
+            if (!appt.paymentMethod) return;
+
+            if (!paymentMethodMap.has(appt.paymentMethod)) {
+                paymentMethodMap.set(appt.paymentMethod, { count: 0, total: 0 });
+            }
+
+            const data = paymentMethodMap.get(appt.paymentMethod)!;
+            data.count++;
+            data.total += Number(appt.paidPrice || 0);
+        });
+
+        const paymentMethodBreakdown = Array.from(paymentMethodMap.entries())
+            .map(([method, data]) => ({
+                method,
+                count: data.count,
+                total: data.total
+            }))
+            .sort((a, b) => b.total - a.total);
+
+        return NextResponse.json({
+            year,
+            totalRevenue,
+            totalAppointments,
+            averageTicket,
+            monthlyBreakdown: monthlyData,
+            paymentMethodBreakdown
+        });
+
     } catch (error) {
-        console.error("Error fetching reports summary:", error);
-        return NextResponse.json({ error: "Failed to fetch reports" }, { status: 500 });
+        console.error('Error fetching summary:', error);
+        return NextResponse.json(
+            { error: 'Erro ao buscar resumo financeiro' },
+            { status: 500 }
+        );
     }
 }

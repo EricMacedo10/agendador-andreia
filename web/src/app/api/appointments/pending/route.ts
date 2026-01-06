@@ -34,10 +34,14 @@ export async function GET() {
                         phone: true
                     }
                 },
-                service: {
-                    select: {
-                        name: true,
-                        price: true
+                services: {
+                    include: {
+                        service: {
+                            select: {
+                                name: true,
+                                price: true
+                            }
+                        }
                     }
                 }
             },
@@ -46,12 +50,12 @@ export async function GET() {
             }
         });
 
-        // Convert Decimal to number for JSON serialization
+        // Convert Decimal to number and join service names
         const serializedAppointments = appointments.map(apt => ({
             ...apt,
             service: {
-                ...apt.service,
-                price: apt.service.price.toNumber()
+                name: apt.services.map(s => s.service.name).join(', '),
+                price: apt.services.reduce((acc, s) => acc + s.service.price.toNumber(), 0)
             }
         }));
 

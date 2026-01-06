@@ -29,28 +29,42 @@ export async function GET() {
             status: { not: "CANCELLED" }
         },
         include: {
-            service: true
+            services: {
+                include: {
+                    service: true
+                }
+            }
         }
     })
 
-    const earnings = appointmentsToday.reduce((acc, appt) => acc + Number(appt.service.price), 0)
+    // Calculate earnings from all services using priceSnapshot
+    const earnings = appointmentsToday.reduce((acc: number, appt) => {
+        const apptTotal = appt.services.reduce((sum: number, s) => sum + Number(s.priceSnapshot), 0);
+        return acc + apptTotal;
+    }, 0);
 
     // 3. Next Client
-    // Find the first appointment after NOW
+    // Find the first PENDING or CONFIRMED appointment after NOW (exclude COMPLETED)
     const nextAppointment = await prisma.appointment.findFirst({
         where: {
             date: {
                 gte: new Date(), // Now
-                lte: end // Until end of today (or remove this to check indefinitely)
+                lte: end // Until end of today
             },
-            status: { not: "CANCELLED" }
+            status: {
+                in: ['PENDING', 'CONFIRMED']
+            }
         },
         orderBy: {
             date: 'asc'
         },
         include: {
             client: true,
-            service: true
+            services: {
+                include: {
+                    service: true
+                }
+            }
         }
     })
 
@@ -59,7 +73,7 @@ export async function GET() {
         earnings,
         nextClient: nextAppointment ? {
             name: nextAppointment.client.name,
-            service: nextAppointment.service.name,
+            service: nextAppointment.services.map((s) => s.service.name).join(', '),
             time: nextAppointment.date
         } : null
     })

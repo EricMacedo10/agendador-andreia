@@ -24,6 +24,22 @@ export async function GET(request: Request) {
     const settings = await prisma.businessSettings.findFirst()
     const workingHours = (settings?.workingHours as WorkingHours) || DEFAULT_WORKING_HOURS
 
+    // NEW: Check for day blocks
+    const blocks = await prisma.dayBlock.findMany({
+        where: {
+            AND: [
+                { startDate: { lte: date } },
+                { endDate: { gte: date } }
+            ]
+        }
+    });
+
+    // If there's a FULL_DAY block, return empty array
+    const hasFullDayBlock = blocks.some(b => b.blockType === 'FULL_DAY');
+    if (hasFullDayBlock) {
+        return NextResponse.json([]);
+    }
+
     // Fetch existing appointments for the date
     // We need to fetch range to cover potential overlaps, usually start of day to end of day is enough for single day view
     // optimize later to fetch broader range if needed
@@ -47,7 +63,25 @@ export async function GET(request: Request) {
         }
     })
 
-    const slots = getAvailableSlots(date, workingHours, appointments, service.duration)
+    let slots = getAvailableSlots(date, workingHours, appointments, service.duration)
+
+    // Filter slots that fall within PARTIAL blocks
+    const partialBlocks = blocks.filter(b => b.blockType === 'PARTIAL');
+    if (partialBlocks.length > 0) {
+        slots = slots.filter(slot => {
+            return !partialBlocks.some(block => {
+                const [slotHour, slotMin] = slot.split(':').map(Number);
+                const slotMinutes = slotHour * 60 + slotMin;
+
+                const [blockStartHour, blockStartMin] = block.startTime!.split(':').map(Number);
+                const [blockEndHour, blockEndMin] = block.endTime!.split(':').map(Number);
+                const blockStart = blockStartHour * 60 + blockStartMin;
+                const blockEnd = blockEndHour * 60 + blockEndMin;
+
+                return slotMinutes >= blockStart && slotMinutes < blockEnd;
+            });
+        });
+    }
 
     return NextResponse.json(slots)
 }

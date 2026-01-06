@@ -28,7 +28,7 @@ export async function PUT(
     try {
         const { id } = await params;
         const body = await request.json();
-        const { date, status, clientId, serviceId, durationMinutes } = body;
+        const { date, status, clientId } = body;  // ← REMOVED: serviceId, durationMinutes (no longer exist)
 
         const appointment = await prisma.appointment.update({
             where: { id },
@@ -36,11 +36,18 @@ export async function PUT(
                 date: date ? new Date(date) : undefined,
                 status,
                 clientId,
-                serviceId,
-                durationMinutes: durationMinutes ? parseInt(durationMinutes) : undefined,
+                // ← NOTE: Services are NOT updated via PUT - use dedicated endpoints for that
                 paymentMethod: body.paymentMethod,
                 paidPrice: body.paidPrice ? Number(body.paidPrice) : undefined,
             },
+            include: {  // ← Include services in response
+                services: {
+                    include: {
+                        service: true
+                    }
+                },
+                client: true
+            }
         });
 
         return NextResponse.json(appointment);

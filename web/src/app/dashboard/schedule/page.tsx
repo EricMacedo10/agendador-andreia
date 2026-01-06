@@ -24,8 +24,18 @@ type Appointment = {
     date: string;
     status: string;
     client: { name: string };
-    service: { name: string; duration: number };
-    durationMinutes?: number;
+    services: { service: { name: string; duration: number }; priceSnapshot: number }[];  // ← NEW: Multiple services
+    totalDurationMinutes?: number;  // ← NEW: Total duration
+};
+
+type DayBlock = {
+    id: string;
+    startDate: string;
+    endDate: string;
+    blockType: 'FULL_DAY' | 'PARTIAL';
+    startTime?: string;
+    endTime?: string;
+    reason?: string;
 };
 
 export default function SchedulePage() {
@@ -35,11 +45,13 @@ export default function SchedulePage() {
     // For day view
     const [currentDate, setCurrentDate] = useState(new Date());
     const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [dayBlocks, setDayBlocks] = useState<DayBlock[]>([]);
 
     // For month view
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [monthAppointments, setMonthAppointments] = useState<Appointment[]>([]);
     const [monthDays, setMonthDays] = useState<Date[]>([]);
+    const [monthBlocks, setMonthBlocks] = useState<DayBlock[]>([]);
 
     // Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,6 +64,7 @@ export default function SchedulePage() {
             fetchDayAppointments();
         } else {
             fetchMonthAppointments();
+            fetchMonthBlocks();
         }
     }, [currentDate, currentMonth, viewMode]);
 
@@ -90,11 +103,51 @@ export default function SchedulePage() {
             );
 
             setAppointments(daysAppointments);
+
+            // Also fetch blocks for this day
+            await fetchDayBlocks();
         } catch (error) {
             console.error(error);
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const fetchDayBlocks = async () => {
+        try {
+            const dayStr = format(currentDate, 'yyyy-MM-dd');
+            const res = await fetch(`/api/blocks?start=${dayStr}&end=${dayStr}`);
+            const data = await res.json();
+            setDayBlocks(data);
+        } catch (error) {
+            console.error('Failed to fetch day blocks:', error);
+        }
+    };
+
+    // Helper to check if a specific hour is blocked
+    const isHourBlocked = (hour: number): boolean => {
+        const dayStr = format(currentDate, 'yyyy-MM-dd');
+
+        // Find blocks that cover the current date
+        const blocksForDay = monthBlocks.filter(b => {
+            const blockStart = b.startDate.split('T')[0];
+            const blockEnd = b.endDate.split('T')[0];
+            return dayStr >= blockStart && dayStr <= blockEnd;
+        });
+
+        return blocksForDay.some(block => {
+            if (block.blockType === 'FULL_DAY') return true;
+
+            if (block.blockType === 'PARTIAL' && block.startTime && block.endTime) {
+                const [blockStartHour, blockStartMin] = block.startTime.split(':').map(Number);
+                const [blockEndHour, blockEndMin] = block.endTime.split(':').map(Number);
+                const blockStartMinutes = blockStartHour * 60 + blockStartMin;
+                const blockEndMinutes = blockEndHour * 60 + blockEndMin;
+                const hourMinutes = hour * 60;
+                return hourMinutes >= blockStartMinutes && hourMinutes < blockEndMinutes;
+            }
+            return false;
+        });
     };
 
     const fetchMonthAppointments = async () => {
@@ -115,6 +168,39 @@ export default function SchedulePage() {
             setIsLoading(false);
         }
     };
+
+    const fetchMonthBlocks = async () => {
+        try {
+            const start = format(startOfMonth(currentMonth), 'yyyy-MM-dd');
+            const end = format(endOfMonth(currentMonth), 'yyyy-MM-dd');
+            const res = await fetch(`/api/blocks?start=${start}&end=${end}`);
+            const data = await res.json();
+            setMonthBlocks(data);
+        } catch (error) {
+            console.error('Failed to fetch blocks:', error);
+        }
+    };
+
+    // Helper function to check if a day is blocked
+    const getDayBlockStatus = (day: Date): 'FULL_DAY' | 'PARTIAL' | null => {
+        const dayStr = format(day, 'yyyy-MM-dd');
+
+        const dayBlocks = monthBlocks.filter(b => {
+            // Convert block dates to strings for comparison
+            const blockStart = b.startDate.split('T')[0]; // Get YYYY-MM-DD part
+            const blockEnd = b.endDate.split('T')[0];     // Get YYYY-MM-DD part
+
+            return dayStr >= blockStart && dayStr <= blockEnd;
+        });
+
+        if (dayBlocks.length === 0) return null;
+
+        const hasFullDay = dayBlocks.some(b => b.blockType === 'FULL_DAY');
+        if (hasFullDay) return 'FULL_DAY';
+
+        return 'PARTIAL';
+    };
+
 
     // Day navigation
     const handlePrevDay = () => setCurrentDate(subDays(currentDate, 1));
@@ -206,16 +292,24 @@ export default function SchedulePage() {
                         </div>
                     )}
 
-                    <button
-                        onClick={() => {
-                            setEditingAppointment(null);
-                            setIsModalOpen(true);
-                        }}
-                        className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform hover:scale-105 shadow-lg shadow-rose-900/20 w-full md:w-auto"
-                    >
-                        <Plus size={20} />
-                        Novo Agendamento
-                    </button>
+                    {/* Only show new appointment button if day is not fully blocked */}
+                    {viewMode === 'day' && getDayBlockStatus(currentDate) === 'FULL_DAY' ? (
+                        <div className="bg-red-100 border border-red-300 text-red-700 px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 w-full md:w-auto">
+                            <span className="text-xl">🚫</span>
+                            Dia Bloqueado
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => {
+                                setEditingAppointment(null);
+                                setIsModalOpen(true);
+                            }}
+                            className="bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-transform hover:scale-105 shadow-lg shadow-rose-900/20 w-full md:w-auto"
+                        >
+                            <Plus size={20} />
+                            Novo Agendamento
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -240,25 +334,52 @@ export default function SchedulePage() {
                             const isCurrentMonth = isSameMonth(day, currentMonth);
                             const isToday = isSameDay(day, new Date());
                             const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                            const blockStatus = getDayBlockStatus(day);
+
+                            // Get block details for tooltip
+                            const dayStr = format(day, 'yyyy-MM-dd');
+                            const dayBlocksInfo = monthBlocks.filter(b => {
+                                const start = format(new Date(b.startDate), 'yyyy-MM-dd');
+                                const end = format(new Date(b.endDate), 'yyyy-MM-dd');
+                                return dayStr >= start && dayStr <= end;
+                            });
 
                             return (
                                 <div
                                     key={idx}
                                     onClick={() => {
-                                        setCurrentDate(day);
-                                        setViewMode('day');
+                                        if (!blockStatus) {
+                                            setCurrentDate(day);
+                                            setViewMode('day');
+                                        }
                                     }}
                                     className={`
                                         min-h-[60px] md:min-h-[120px] max-h-[60px] md:max-h-[120px] 
-                                        bg-white p-1.5 md:p-2 cursor-pointer transition-all overflow-hidden
+                                        bg-white p-1.5 md:p-2 transition-all overflow-hidden
                                         ${!isCurrentMonth && 'opacity-30 bg-zinc-50'}
                                         ${isToday && 'ring-2 ring-inset ring-rose-500'}
                                         ${isWeekend && isCurrentMonth && 'bg-zinc-50/50'}
-                                        hover:bg-rose-50 hover:shadow-md hover:z-10
+                                        ${blockStatus === 'FULL_DAY' && 'bg-red-50 border-2 border-red-200'}
+                                        ${blockStatus === 'PARTIAL' && 'bg-yellow-50 border-2 border-yellow-200'}
+                                        ${!blockStatus && 'cursor-pointer hover:bg-rose-50 hover:shadow-md hover:z-10'}
+                                        ${blockStatus && 'cursor-not-allowed'}
                                     `}
+                                    title={blockStatus && dayBlocksInfo.length > 0
+                                        ? dayBlocksInfo.map(b =>
+                                            `${b.blockType === 'FULL_DAY' ? '🚫 Bloqueado' : '⏰ Parcialmente bloqueado'}${b.startTime ? ` (${b.startTime}-${b.endTime})` : ''}${b.reason ? `: ${b.reason}` : ''}`
+                                        ).join('\n')
+                                        : undefined
+                                    }
                                 >
-                                    <div className={`font-bold text-xs md:text-sm mb-1 md:mb-2 ${isToday ? 'text-rose-600' : 'text-zinc-700'}`}>
-                                        {format(day, 'd')}
+                                    <div className="flex items-center justify-between mb-1 md:mb-2">
+                                        <div className={`font-bold text-xs md:text-sm ${isToday ? 'text-rose-600' : 'text-zinc-700'}`}>
+                                            {format(day, 'd')}
+                                        </div>
+                                        {blockStatus && (
+                                            <span className="text-base md:text-lg">
+                                                {blockStatus === 'FULL_DAY' ? '🚫' : '⏰'}
+                                            </span>
+                                        )}
                                     </div>
 
                                     {/* Show client names - max 2 on mobile, 3 on desktop */}
@@ -267,7 +388,7 @@ export default function SchedulePage() {
                                             <div
                                                 key={appt.id}
                                                 className="text-[10px] md:text-xs bg-rose-100 text-rose-900 px-1 md:px-1.5 py-0.5 rounded truncate font-medium"
-                                                title={`${appt.client.name} - ${appt.service.name}`}
+                                                title={`${appt.client.name} - ${appt.services.map(s => s.service.name).join(', ')}`}
                                             >
                                                 {appt.client.name}
                                             </div>
@@ -276,7 +397,7 @@ export default function SchedulePage() {
                                         {dayAppointments.length > 2 && (
                                             <>
                                                 <div className="hidden md:block text-xs bg-rose-100 text-rose-900 px-1.5 py-0.5 rounded truncate font-medium"
-                                                    title={`${dayAppointments[2].client.name} - ${dayAppointments[2].service.name}`}
+                                                    title={`${dayAppointments[2].client.name} - ${dayAppointments[2].services.map(s => s.service.name).join(', ')}`}
                                                 >
                                                     {dayAppointments[2].client.name}
                                                 </div>
@@ -302,77 +423,91 @@ export default function SchedulePage() {
             {/* Day View (existing timeline) */}
             {viewMode === 'day' && (
                 <div className="flex-1 overflow-y-auto bg-white border border-zinc-200 rounded-2xl relative shadow-sm pb-24">
-                    {hours.map(hour => (
-                        <div key={hour} className="flex border-b border-zinc-100 min-h-[100px] group hover:bg-zinc-50 transition-colors">
-                            {/* Time Column */}
-                            <div className="w-20 border-r border-zinc-100 flex items-start justify-center pt-4 text-zinc-400 font-bold text-sm bg-zinc-50/50">
-                                {hour}:00
-                            </div>
+                    {hours.map(hour => {
+                        const hourBlocked = isHourBlocked(hour);
 
-                            <div className="flex-1 relative p-1">
-                                {/* Empty State / Add Slot helper */}
-                                <div
-                                    className="absolute inset-0 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity z-0"
-                                    onClick={() => {
-                                        setEditingAppointment(null);
-                                        const dateWithTime = new Date(currentDate);
-                                        dateWithTime.setHours(hour, 0, 0, 0);
-                                        setCurrentDate(dateWithTime);
-                                        setIsModalOpen(true);
-                                    }}
-                                >
-                                    <span className="text-zinc-400 text-xs font-bold">+ Adicionar em {hour}:00</span>
+                        return (
+                            <div key={hour} className={`flex border-b border-zinc-100 min-h-[100px] transition-colors ${hourBlocked ? 'bg-red-50/50' : 'group hover:bg-zinc-50'}`}>
+                                {/* Time Column */}
+                                <div className={`w-20 border-r border-zinc-100 flex items-start justify-center pt-4 text-sm font-bold bg-zinc-50/50 ${hourBlocked ? 'text-red-400 line-through' : 'text-zinc-400'}`}>
+                                    {hour}:00
                                 </div>
 
-                                {/* Render appointments for this hour */}
-                                {appointments
-                                    .filter(appt => parseISO(appt.date).getHours() === hour)
-                                    .map(appt => {
-                                        const isCompleted = appt.status === "COMPLETED";
-                                        const apptDate = parseISO(appt.date);
-                                        const isPast = apptDate < new Date() && !isCompleted;
+                                <div className="flex-1 relative p-1">
+                                    {/* Blocked indicator */}
+                                    {hourBlocked ? (
+                                        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                                            <div className="bg-red-100 border border-red-300 rounded-lg px-4 py-2 flex items-center gap-2">
+                                                <span className="text-2xl">🚫</span>
+                                                <span className="text-sm font-bold text-red-700">Horário Bloqueado</span>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        /* Empty State / Add Slot helper */
+                                        <div
+                                            className="absolute inset-0 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity z-0"
+                                            onClick={() => {
+                                                setEditingAppointment(null);
+                                                const dateWithTime = new Date(currentDate);
+                                                dateWithTime.setHours(hour, 0, 0, 0);
+                                                setCurrentDate(dateWithTime);
+                                                setIsModalOpen(true);
+                                            }}
+                                        >
+                                            <span className="text-zinc-400 text-xs font-bold">+ Adicionar em {hour}:00</span>
+                                        </div>
+                                    )}
 
-                                        let bgClass = "bg-rose-100 border-rose-500 text-rose-900 hover:bg-rose-200";
-                                        let badgeClass = "text-rose-700";
+                                    {/* Render appointments for this hour */}
+                                    {appointments
+                                        .filter(appt => parseISO(appt.date).getHours() === hour)
+                                        .map(appt => {
+                                            const isCompleted = appt.status === "COMPLETED";
+                                            const apptDate = parseISO(appt.date);
+                                            const isPast = apptDate < new Date() && !isCompleted;
 
-                                        if (isCompleted) {
-                                            bgClass = "bg-emerald-100 border-emerald-500 text-emerald-900 hover:bg-emerald-200";
-                                            badgeClass = "text-emerald-700";
-                                        } else if (isPast) {
-                                            bgClass = "bg-orange-100 border-orange-500 text-orange-900 hover:bg-orange-200 animate-pulse";
-                                            badgeClass = "text-orange-700";
-                                        }
+                                            let bgClass = "bg-rose-100 border-rose-500 text-rose-900 hover:bg-rose-200";
+                                            let badgeClass = "text-rose-700";
 
-                                        return (
-                                            <div
-                                                key={appt.id}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setEditingAppointment(appt);
-                                                    setIsModalOpen(true);
-                                                }}
-                                                className={`mb-1 p-3 border-l-4 rounded-r-lg transition-colors cursor-pointer shadow-sm relative z-20 ${bgClass}`}
-                                            >
-                                                <div className="font-bold flex justify-between items-center">
-                                                    <span>{appt.client.name}</span>
-                                                    <div className="flex items-center gap-1">
-                                                        {isCompleted && <span title="Pago">💰</span>}
-                                                        {isPast && <span title="Pagamento Pendente">⚠️</span>}
-                                                        <span className={`text-sm font-bold bg-white/50 px-2 rounded-md ${badgeClass}`}>
-                                                            {format(apptDate, "HH:mm")}
-                                                        </span>
+                                            if (isCompleted) {
+                                                bgClass = "bg-emerald-100 border-emerald-500 text-emerald-900 hover:bg-emerald-200";
+                                                badgeClass = "text-emerald-700";
+                                            } else if (isPast) {
+                                                bgClass = "bg-orange-100 border-orange-500 text-orange-900 hover:bg-orange-200 animate-pulse";
+                                                badgeClass = "text-orange-700";
+                                            }
+
+                                            return (
+                                                <div
+                                                    key={appt.id}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setEditingAppointment(appt);
+                                                        setIsModalOpen(true);
+                                                    }}
+                                                    className={`mb-1 p-3 border-l-4 rounded-r-lg transition-colors cursor-pointer shadow-sm relative z-20 ${bgClass}`}
+                                                >
+                                                    <div className="font-bold flex justify-between items-center">
+                                                        <span>{appt.client.name}</span>
+                                                        <div className="flex items-center gap-1">
+                                                            {isCompleted && <span title="Pago">💰</span>}
+                                                            {isPast && <span title="Pagamento Pendente">⚠️</span>}
+                                                            <span className={`text-sm font-bold bg-white/50 px-2 rounded-md ${badgeClass}`}>
+                                                                {format(apptDate, "HH:mm")}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-sm font-medium opacity-80 flex justify-between">
+                                                        <span>{appt.services.map(s => s.service.name).join(', ')}</span>
+                                                        <span>{appt.totalDurationMinutes || appt.services.reduce((sum, s) => sum + s.service.duration, 0)} min</span>
                                                     </div>
                                                 </div>
-                                                <div className="text-sm font-medium opacity-80 flex justify-between">
-                                                    <span>{appt.service.name}</span>
-                                                    <span>{appt.durationMinutes || appt.service.duration} min</span>
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
+                                            )
+                                        })}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             )}
 

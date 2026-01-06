@@ -5,11 +5,12 @@ const prisma = new PrismaClient()
 
 async function main() {
     const appointments = await prisma.appointment.findMany({
-        include: { client: true, service: true }
+        include: { client: true, services: { include: { service: true } } }
     })
     console.log('Appointments found:', appointments.length)
     appointments.forEach(a => {
-        console.log(`- ${a.date.toISOString()} | ${a.client.name} | ${a.service.name}`)
+        const serviceNames = a.services.map(s => s.service.name).join(', ')
+        console.log(`- ${a.date.toISOString()} | ${a.client.name} | ${serviceNames}`)
     })
 }
 
