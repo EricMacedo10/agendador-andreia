@@ -27,7 +27,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (!user || !user.password) {
                     return null
                 }
-
                 const inputPassword = credentials.password as string;
                 let isValid = false;
                 let needsRehash = false;

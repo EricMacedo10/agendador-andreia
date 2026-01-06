@@ -222,7 +222,11 @@ async function checkAppointmentConflicts(
         },
         include: {
             client: true,
-            service: true
+            services: {
+                include: {
+                    service: true
+                }
+            }
         }
     });
 
