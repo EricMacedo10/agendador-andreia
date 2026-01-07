@@ -50,6 +50,39 @@ Sistema de gestão completo para profissionais de beleza, focado em facilidade d
 - Splash screen branded
 - Suporte offline (futuro)
 
+### 🔄 Múltiplos Serviços
+- Adicionar vários serviços em um único agendamento
+- Cálculo automático de duração e preço total
+- Visualização clara na agenda com todos os serviços
+- Suporte completo na página de agendamento online
+- Histórico de preços (snapshot no momento do agendamento)
+
+### 🚫 Bloqueio de Dias
+- Bloquear dias inteiros (férias, feriados)
+- Bloqueios parciais (apenas manhã ou tarde)
+- Integração automática com agenda online
+- Avisos de conflito com agendamentos existentes
+- Visualização destacada na agenda
+
+### 📊 Relatórios Avançados
+- Análise financeira por ano (atual e anterior)
+- Top 10 clientes VIP com histórico completo
+- Serviços mais realizados e mais lucrativos
+- Breakdown mensal detalhado
+- Análise por forma de pagamento
+
+### 💾 Backup e Restauração
+- Exportação completa de dados em JSON
+- Restauração de backups anteriores
+- Backup automático diário via cron-job.org
+- Download manual a qualquer momento
+
+### 🔔 Notificações Push
+- Lembretes automáticos 10 minutos antes
+- Notificações via Firebase Cloud Messaging
+- Suporte para Android e iOS
+- Sistema de auto-sync de tokens
+
 ---
 
 ## 🛠️ Stack Tecnológica
@@ -177,19 +210,23 @@ O projeto está configurado para deploy automático:
 
 ## 🔐 Segurança
 
-### Boas Práticas Implementadas
-- ✅ Senhas **não** usam hash (TODO: implementar bcrypt)
-- ✅ Autenticação obrigatória via NextAuth
-- ✅ Middleware protege rotas administrativas
+### Implementações de Segurança
+- ✅ Senhas com hash bcrypt
+- ✅ Autenticação obrigatória via NextAuth v5
+- ✅ Middleware de proteção de rotas
+- ✅ Sistema de roles (ADMIN/USER)
 - ✅ Variáveis sensíveis em `.env` (não commitado)
 - ✅ CORS configurado adequadamente
 - ✅ Validação de dados no backend
+- ✅ Headers de segurança HTTP
+- ✅ Proteção contra XSS
+- ✅ Rate limiting básico
 
-### ⚠️ TODOs de Segurança
-- [ ] Implementar bcrypt para hash de senhas
-- [ ] Rate limiting em APIs
-- [ ] CSRF protection
-- [ ] Audit logs
+### Melhorias Futuras
+- [ ] Rate limiting avançado (Redis)
+- [ ] Audit logs detalhados
+- [ ] 2FA para administradores
+- [ ] Backup automático criptografado
 
 ---
 
