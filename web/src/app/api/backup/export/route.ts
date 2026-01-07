@@ -34,7 +34,11 @@ export async function GET(request: NextRequest) {
             prisma.appointment.findMany({
                 include: {
                     client: true,
-                    service: true,
+                    services: {
+                        include: {
+                            service: true
+                        }
+                    },
                     user: {
                         select: {
                             id: true,
