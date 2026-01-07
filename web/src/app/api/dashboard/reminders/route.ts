@@ -4,9 +4,22 @@ import { startOfDay, endOfDay } from "date-fns";
 
 export async function GET() {
     const startTime = Date.now();
-    
+
+    // DIAGNOSTIC: Log function entry
+    console.log('[REMINDERS_API_START]', {
+        timestamp: new Date().toISOString(),
+        region: process.env.VERCEL_REGION,
+    });
+
     try {
         const now = new Date();
+
+        // DIAGNOSTIC: Log before Prisma query
+        const beforeQuery = Date.now();
+        console.log('[REMINDERS_API_BEFORE_QUERY]', {
+            timeSinceStart: `${beforeQuery - startTime}ms`,
+            timestamp: new Date().toISOString(),
+        });
 
         // Find appointments for TODAY that are NOT completed or cancelled
         const pendingAppointments = await prisma.appointment.findMany({
@@ -21,12 +34,25 @@ export async function GET() {
             },
             include: {
                 client: true,
-                service: true
+                services: {
+                    include: {
+                        service: true
+                    }
+                }
             }
         });
 
+        // DIAGNOSTIC: Log after Prisma query
+        const afterQuery = Date.now();
+        console.log('[REMINDERS_API_AFTER_QUERY]', {
+            queryTime: `${afterQuery - beforeQuery}ms`,
+            totalTime: `${afterQuery - startTime}ms`,
+            resultCount: pendingAppointments.length,
+            timestamp: new Date().toISOString(),
+        });
+
         const executionTime = Date.now() - startTime;
-        
+
         // Log successful execution for monitoring
         console.log('[REMINDERS_API_SUCCESS]', {
             count: pendingAppointments.length,
@@ -40,7 +66,7 @@ export async function GET() {
         });
     } catch (error) {
         const executionTime = Date.now() - startTime;
-        
+
         // Detailed error logging for diagnosis
         console.error('[REMINDERS_API_ERROR]', {
             error: {
@@ -63,10 +89,11 @@ export async function GET() {
                 region: process.env.VERCEL_REGION,
             }
         });
-        
+
         return NextResponse.json(
             { error: "Failed to fetch reminders" },
             { status: 500 }
         );
     }
 }
+
