@@ -212,8 +212,8 @@ export default function SchedulePage() {
     const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
     const handleThisMonth = () => setCurrentMonth(new Date());
 
-    // Generate hours 08:00 to 20:00
-    const hours = Array.from({ length: 13 }, (_, i) => i + 8);
+    // Generate hours 05:00 to 23:00 (covering up to 23:59)
+    const hours = Array.from({ length: 19 }, (_, i) => i + 5);
 
 
     return (
