@@ -187,9 +187,15 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-            <div className={`bg-white border border-zinc-200 rounded-2xl w-full max-w-md p-6 shadow-xl transition-all ${formData.isCheckout ? 'border-emerald-500 ring-2 ring-emerald-100' : ''}`}>
-                <div className="flex justify-between items-center mb-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm" 
+             style={{ height: '100dvh', maxHeight: '100dvh' }}>
+            <div className={`bg-white border border-zinc-200 rounded-2xl w-full max-w-md shadow-xl transition-all flex flex-col ${formData.isCheckout ? 'border-emerald-500 ring-2 ring-emerald-100' : ''}`}
+                 style={{ 
+                   maxHeight: 'calc(100dvh - 2rem)', 
+                   height: 'auto' 
+                 }}>
+                {/* Header - Fixed */}
+                <div className="flex justify-between items-center p-6 pb-4 border-b border-zinc-100">
                     <h2 className="text-xl font-bold text-zinc-900">
                         {formData.isCheckout ? "Finalizar Atendimento 💰" : (appointmentToEdit ? "Editar Agendamento" : "Novo Agendamento")}
                     </h2>
@@ -198,7 +204,13 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                    {/* Scrollable Content Area */}
+                    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4" 
+                         style={{ 
+                           maxHeight: 'calc(100dvh - 16rem)',
+                           paddingBottom: 'env(safe-area-inset-bottom, 1rem)'
+                         }}>
                     {!formData.isCheckout && (
                         <>
                             <div>
@@ -226,7 +238,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                                 </label>
 
                                 {/* Scrollable checkbox list */}
-                                <div className="max-h-60 overflow-y-auto border-2 border-zinc-200 rounded-xl p-3 space-y-2 bg-zinc-50">
+                                <div className="max-h-48 overflow-y-auto border-2 border-zinc-200 rounded-xl p-3 space-y-2 bg-zinc-50">
                                     {services.map(service => {
                                         const isSelected = selectedServices.some(s => s.id === service.id);
 
@@ -374,8 +386,12 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                             ✅ Finalizar / Já Realizado
                         </button>
                     )}
+                    </div>
 
-                    <div className="flex gap-3 mt-6">
+                    {/* Fixed Button Footer */}
+                    <div className="border-t border-zinc-200 p-6 bg-white" 
+                         style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}>
+                        <div className="flex gap-3">
                         {appointmentToEdit && !formData.isCheckout && (
                             <button
                                 type="button"
@@ -406,6 +422,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                         >
                             {formData.isCheckout ? "Confirmar Pagamento Assinado" : (appointmentToEdit ? "Salvar Alterações" : "Confirmar Agendamento")}
                         </button>
+                        </div>
                     </div>
                 </form>
             </div>
