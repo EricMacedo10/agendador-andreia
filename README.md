@@ -182,7 +182,7 @@ agendador-andreia/
 │   │   ├── auth.ts               # Configuração NextAuth
 │   │   └── middleware.ts         # Proteção de rotas
 │   └── package.json
-├── LOGIN_INSTRUCTIONS.md         # Guia de acesso
+├── package.json
 └── README.md                     # Este arquivo
 ```
 
@@ -263,7 +263,8 @@ npx prisma generate      # Gerar cliente Prisma
 
 ### Erro de Deploy no Vercel
 ```
-Error: The provided path "~\...\web\web" does not exist
+```
+Error: The provided path ".../web/web" does not exist
 ```
 → **Solução**: Execute `npx vercel deploy --prod` da **pasta raiz**, não de `/web`
 
