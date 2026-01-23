@@ -248,6 +248,16 @@ npx prisma generate      # Gerar cliente Prisma
 
 ---
 
+## 📅 Changelog
+
+### v1.1.0 - 2026-01-23
+- **[FIX]** Correção no cálculo de "Top 5 Serviços" e relatórios financeiros:
+    - Implementada lógica de "Price Snapshot" nos serviços de um agendamento.
+    - Alterações no valor total do agendamento agora são distribuídas proporcionalmente entre os serviços.
+    - Garante precisão nos relatórios de "Serviços Mais Lucrativos" mesmo após descontos/acréscimos manuais.
+- **[SECURITY]** Auditoria de segurança e limpeza de logs/scripts de teste.
+
+---
 
 ## ⚠️ Problemas Conhecidos (Known Issues)
 
