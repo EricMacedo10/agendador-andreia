@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Calendar, Users, Briefcase, LogOut, TrendingUp, CalendarX } from "lucide-react";
+import { Home, Calendar, MessageSquare, Users, Briefcase, LogOut, TrendingUp, CalendarX } from "lucide-react";
 import { clsx } from "clsx";
 import { signOut } from "next-auth/react";
 
 const navItems = [
   { href: "/dashboard", label: "Início", icon: Home },
   { href: "/dashboard/schedule", label: "Agenda", icon: Calendar },
+  { href: "/dashboard/reminders", label: "Mensagem", icon: MessageSquare },
   { href: "/dashboard/clients", label: "Clientes", icon: Users },
   { href: "/dashboard/blocks", label: "Bloqueios", icon: CalendarX },
   { href: "/dashboard/services", label: "Serviços", icon: Briefcase },

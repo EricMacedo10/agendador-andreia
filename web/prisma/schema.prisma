@@ -87,6 +87,7 @@ model Appointment {
   
   // Notifications
   notificationSent Boolean @default(false) // Track if 10-min reminder was sent
+  whatsappReminderSent Boolean @default(false) // Track if manual 24h WhatsApp reminder was sent
   
   // Financials
   paymentMethod PaymentMethod?
