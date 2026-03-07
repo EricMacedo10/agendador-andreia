@@ -39,6 +39,8 @@ model Client {
   updatedAt DateTime @updatedAt
   
   appointments Appointment[]
+  credits      ClientCredit[]
+  creditHistory CreditHistory[]
 }
 
 model Service {
@@ -53,6 +55,8 @@ model Service {
   updatedAt   DateTime @updatedAt
   
   appointmentServices AppointmentService[]  // ← Changed: N:N relationship
+  clientCredits       ClientCredit[]
+  creditHistory       CreditHistory[]
 }
 
 model BusinessSettings {
@@ -99,6 +103,39 @@ enum PaymentMethod {
   CASH
   CREDIT_CARD
   DEBIT_CARD
+  PACKAGE_CREDIT
+}
+
+// ← NEW MODELS: Client Wallet and Credit History
+model ClientCredit {
+  id        String   @id @default(cuid())
+  clientId  String
+  serviceId String
+  balance   Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, serviceId]) // One balance per service per client
+  @@index([clientId])
+  @@index([serviceId])
+}
+
+model CreditHistory {
+  id        String   @id @default(cuid())
+  clientId  String
+  serviceId String
+  amount    Int      // Positive for added credits, negative for consumed
+  reason    String?  // e.g., "Pacote pago", "Abatido no agendamento xyz"
+  createdAt DateTime @default(now())
+
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([serviceId])
 }
 
 // ← NEW MODEL: Junction table for Appointment<->Service N:N relationship

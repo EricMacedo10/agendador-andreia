@@ -48,15 +48,14 @@ export async function POST(request: NextRequest) {
             if (data.appointments?.length > 0) {
                 // Appointments need special handling due to relations
                 for (const appointment of data.appointments) {
-                    await tx.appointment.create({
+                    const app = await tx.appointment.create({
                         data: {
                             id: appointment.id,
                             date: new Date(appointment.date),
-                            durationMinutes: appointment.durationMinutes,
+                            totalDurationMinutes: appointment.totalDurationMinutes || appointment.durationMinutes,
                             status: appointment.status,
                             userId: appointment.userId,
                             clientId: appointment.clientId,
-                            serviceId: appointment.serviceId,
                             notificationSent: appointment.notificationSent,
                             paymentMethod: appointment.paymentMethod,
                             paidPrice: appointment.paidPrice,
@@ -64,6 +63,18 @@ export async function POST(request: NextRequest) {
                             updatedAt: new Date(appointment.updatedAt)
                         }
                     });
+
+                    // Legacy support: if serviceId is in backup, connect it
+                    if (appointment.serviceId) {
+                        await tx.appointmentService.create({
+                            data: {
+                                appointmentId: app.id,
+                                serviceId: appointment.serviceId,
+                                priceSnapshot: Number(appointment.paidPrice || 0), // Use total price as snapshot for legacy
+                                order: 1
+                            }
+                        });
+                    }
                 }
             }
 

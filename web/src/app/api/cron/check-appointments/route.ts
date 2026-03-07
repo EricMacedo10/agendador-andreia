@@ -52,7 +52,7 @@ export async function GET(request: Request) {
             include: {
                 client: true,
                 user: true,
-                service: true
+                services: { include: { service: true } }
             }
         });
 

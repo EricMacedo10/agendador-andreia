@@ -11,7 +11,12 @@ export async function GET(request: Request) {
         // 1. Total Revenue (All Time)
         const allCompleted = await prisma.appointment.findMany({
             where: { status: "COMPLETED" },
-            select: { paidPrice: true, paymentMethod: true, service: true, date: true }
+            select: {
+                paidPrice: true,
+                paymentMethod: true,
+                date: true,
+                services: { include: { service: true } }
+            }
         });
 
         const totalRevenue = allCompleted.reduce((acc, curr) => acc + Number(curr.paidPrice || 0), 0);
@@ -42,8 +47,14 @@ export async function GET(request: Request) {
         // 5. Top Services
         const byService: Record<string, number> = {};
         allCompleted.forEach(a => {
-            const name = a.service.name;
-            byService[name] = (byService[name] || 0) + Number(a.paidPrice || 0);
+            if (a.services && a.services.length > 0) {
+                a.services.forEach(as => {
+                    const name = as.service.name;
+                    // Distribute total paid price among services if possible, or use snapshot
+                    const value = Number(as.priceSnapshot) > 0 ? Number(as.priceSnapshot) : (Number(a.paidPrice || 0) / a.services.length);
+                    byService[name] = (byService[name] || 0) + value;
+                });
+            }
         });
 
         const topServices = Object.entries(byService)

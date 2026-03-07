@@ -140,7 +140,7 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json();
-        const { clientId, serviceId, serviceIds, date, durationMinutes } = body;
+        const { clientId, serviceId, serviceIds, date, durationMinutes, useCreditForServiceId, buyPackageServiceId, buyPackageAmount } = body;
 
         // ← NEW: Backward compatibility - convert single serviceId to array  
         const finalServiceIds = serviceIds || (serviceId ? [serviceId] : []);
@@ -255,6 +255,42 @@ export async function POST(request: Request) {
                 client: true
             }
         });
+
+        if (body.status === 'COMPLETED') {
+            if (useCreditForServiceId) {
+                await prisma.clientCredit.update({
+                    where: { clientId_serviceId: { clientId: clientId, serviceId: useCreditForServiceId } },
+                    data: { balance: { decrement: 1 } }
+                });
+                await prisma.creditHistory.create({
+                    data: {
+                        clientId: clientId,
+                        serviceId: useCreditForServiceId,
+                        amount: -1,
+                        reason: `Abatido no agendamento ${appointment.id}`
+                    }
+                });
+            }
+
+            if (buyPackageServiceId && buyPackageAmount) {
+                const amt = parseInt(buyPackageAmount, 10);
+                if (amt > 0) {
+                    await prisma.clientCredit.upsert({
+                        where: { clientId_serviceId: { clientId: clientId, serviceId: buyPackageServiceId } },
+                        update: { balance: { increment: amt } },
+                        create: { clientId: clientId, serviceId: buyPackageServiceId, balance: amt }
+                    });
+                    await prisma.creditHistory.create({
+                        data: {
+                            clientId: clientId,
+                            serviceId: buyPackageServiceId,
+                            amount: amt,
+                            reason: `Pacote adquirido no agendamento ${appointment.id}`
+                        }
+                    });
+                }
+            }
+        }
 
         return NextResponse.json(appointment);
     } catch (error: any) {

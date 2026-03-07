@@ -59,11 +59,16 @@ export async function GET(request: Request) {
             status: { not: "CANCELLED" }
         },
         include: {
-            service: true // we need duration
+            services: { include: { service: true } }
         }
     })
 
-    let slots = getAvailableSlots(date, workingHours, appointments, service.duration)
+    const formattedAppointments = appointments.map(appt => ({
+        date: appt.date,
+        durationMinutes: appt.totalDurationMinutes || appt.services.reduce((sum, s) => sum + s.service.duration, 0)
+    }));
+
+    let slots = getAvailableSlots(date, workingHours, formattedAppointments as any, service.duration)
 
     // Filter slots that fall within PARTIAL blocks
     const partialBlocks = blocks.filter(b => b.blockType === 'PARTIAL');

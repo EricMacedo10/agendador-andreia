@@ -32,13 +32,26 @@ export async function createAppointment(data: {
     if (!user) throw new Error("System configuration error: No provider found.")
 
     // 4. Create Appointment
+    const service = await prisma.service.findUnique({
+        where: { id: data.serviceId }
+    })
+
+    if (!service) throw new Error("Service not found")
+
     const appointment = await prisma.appointment.create({
         data: {
             date: dateTime,
-            status: "CONFIRMED", // Auto-confirm for now or PENDING
-            serviceId: data.serviceId,
+            status: "CONFIRMED",
             clientId: client.id,
-            userId: user.id
+            userId: user.id,
+            totalDurationMinutes: service.duration,
+            services: {
+                create: [{
+                    serviceId: service.id,
+                    priceSnapshot: service.price,
+                    order: 1
+                }]
+            }
         }
     })
 

@@ -28,7 +28,7 @@ export async function PUT(
     try {
         const { id } = await params;
         const body = await request.json();
-        const { date, status, clientId, paymentMethod } = body;
+        const { date, status, clientId, paymentMethod, useCreditForServiceId, buyPackageServiceId, buyPackageAmount } = body;
         const paidPrice = body.paidPrice !== undefined ? Number(body.paidPrice) : undefined;
 
         // Use transaction to ensure consistency
@@ -49,6 +49,43 @@ export async function PUT(
                     }
                 }
             });
+
+            // Handle Credits if completed
+            if (status === 'COMPLETED') {
+                if (useCreditForServiceId) {
+                    await tx.clientCredit.update({
+                        where: { clientId_serviceId: { clientId: clientId || updatedAppointment.clientId, serviceId: useCreditForServiceId } },
+                        data: { balance: { decrement: 1 } }
+                    });
+                    await tx.creditHistory.create({
+                        data: {
+                            clientId: clientId || updatedAppointment.clientId,
+                            serviceId: useCreditForServiceId,
+                            amount: -1,
+                            reason: `Abatido no agendamento ${id}`
+                        }
+                    });
+                }
+
+                if (buyPackageServiceId && buyPackageAmount) {
+                    const amt = parseInt(buyPackageAmount, 10);
+                    if (amt > 0) {
+                        await tx.clientCredit.upsert({
+                            where: { clientId_serviceId: { clientId: clientId || updatedAppointment.clientId, serviceId: buyPackageServiceId } },
+                            update: { balance: { increment: amt } },
+                            create: { clientId: clientId || updatedAppointment.clientId, serviceId: buyPackageServiceId, balance: amt }
+                        });
+                        await tx.creditHistory.create({
+                            data: {
+                                clientId: clientId || updatedAppointment.clientId,
+                                serviceId: buyPackageServiceId,
+                                amount: amt,
+                                reason: `Pacote adquirido no agendamento ${id}`
+                            }
+                        });
+                    }
+                }
+            }
 
             // 2. If paidPrice is updated, distribute it among services
             if (paidPrice !== undefined) {
