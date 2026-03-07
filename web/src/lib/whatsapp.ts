@@ -22,7 +22,7 @@ export function generateWhatsAppLink(
     time: string
 ): string {
     const formattedPhone = formatPhoneForWhatsApp(phone);
-    const message = `Olá ${clientName}, tudo bem? 👋 Aqui é a Andreia, passando para lembrar do seu horário de ${serviceName} amanhã às ${time}. 😘`;
+    const message = `Olá ${clientName}, tudo bem? 👋, passando para lembrar do seu horário de amanhã às ${time}. 😘`;
     
     return `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
 }
