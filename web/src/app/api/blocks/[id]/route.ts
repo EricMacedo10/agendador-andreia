@@ -23,9 +23,10 @@ async function getUserIdFromEmail(email: string | null | undefined): Promise<str
 // DELETE /api/blocks/[id] - Delete a block
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const session = await auth();
         if (!session?.user?.email) {
             return NextResponse.json(
@@ -38,7 +39,7 @@ export async function DELETE(
 
         // Check that block exists and belongs to user
         const block = await prisma.dayBlock.findUnique({
-            where: { id: params.id }
+            where: { id }
         });
 
         if (!block) {
@@ -57,7 +58,7 @@ export async function DELETE(
 
         // Delete block
         await prisma.dayBlock.delete({
-            where: { id: params.id }
+            where: { id }
         });
 
         return NextResponse.json({ success: true });

@@ -4,9 +4,24 @@ import prisma from "@/lib/prisma"
 import { startOfDay, endOfDay } from "date-fns"
 
 export async function GET() {
-    const today = new Date()
-    const start = startOfDay(today)
-    const end = endOfDay(today)
+    // Use America/Sao_Paulo timezone for day boundaries
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Sao_Paulo',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    });
+
+    const parts = formatter.formatToParts(now);
+    const year = parseInt(parts.find(p => p.type === 'year')?.value || '0');
+    const month = parseInt(parts.find(p => p.type === 'month')?.value || '0') - 1;
+    const day = parseInt(parts.find(p => p.type === 'day')?.value || '0');
+
+    // Create start and end dates in the Brazil timezone
+    // 00:00:00 in Brazil is 03:00:00 UTC (assuming UTC-3)
+    const start = new Date(Date.UTC(year, month, day, 3, 0, 0, 0));
+    const end = new Date(Date.UTC(year, month, day + 1, 2, 59, 59, 999));
 
     // 1. Count Appointments Today
     const count = await prisma.appointment.count({

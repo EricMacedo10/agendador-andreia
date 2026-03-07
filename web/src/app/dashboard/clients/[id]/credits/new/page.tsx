@@ -14,7 +14,6 @@ export default async function NewCreditPage({ params }: { params: any }) {
     if (!client) notFound();
 
     const services = await prisma.service.findMany({
-        where: { visible: true },
         orderBy: { name: 'asc' }
     });
 
