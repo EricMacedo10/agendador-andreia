@@ -171,7 +171,7 @@ agendador-andreia/
 │   ├── public/
 │   │   ├── icons/                # Ícones PWA
 │   │   └── manifest.json         # PWA manifest
-│   ├── src/
+|   ├── src/
 │   │   ├── app/                  # App Router (Next.js 15)
 │   │   │   ├── api/              # API Routes
 │   │   │   ├── dashboard/        # Dashboard pages
@@ -182,9 +182,24 @@ agendador-andreia/
 │   │   ├── auth.ts               # Configuração NextAuth
 │   │   └── middleware.ts         # Proteção de rotas
 │   └── package.json
+├── docs/                         # Documentação Técnica
+│   ├── README.md                 # Este guia mestre
+│   ├── FEATURES.md               # [NOVO] Lista detalhada de funcionalidades
+│   ├── PACKAGE_SYSTEM.md         # Guia do sistema de pacotes/créditos
+│   ├── DEPLOYMENT.md             # Instruções de implantação
+│   ├── SKILL_SENIOR_WORKFLOW.md  # Filosofia de desenvolvimento
+│   └── history/                  # [NOVO] Histórico de issues resolvidas
 ├── package.json
-└── README.md                     # Este arquivo
+└── README.md                     # Redirecionamento para docs/README.md
 ```
+
+---
+
+## 📅 Histórico e Funcionalidades
+
+- **[Lista de Funcionalidades](file:///c:/Users/ericm/OneDrive/%C3%81rea%20de%20Trabalho/PESSOAL/Agendador%20Andreia/docs/FEATURES.md)**: Explore o que o sistema é capaz de fazer hoje em 100% de produção.
+- **[Histórico de Desenvolvimento](file:///c:/Users/ericm/OneDrive/%C3%81rea%20de%20Trabalho/PESSOAL/Agendador%20Andreia/docs/history/)**: Acesse a documentação de issues e melhorias já completadas.
+
 
 ---
 
