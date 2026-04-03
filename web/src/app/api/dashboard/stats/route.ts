@@ -49,11 +49,15 @@ export async function GET() {
                     service: true
                 }
             }
-        }
+        },
+        // We'll filter in JS to handle both PENDING (no payment method) and COMPLETED (with payment method)
     })
 
-    // Calculate earnings from all services using priceSnapshot
+    // Calculate earnings from all services using priceSnapshot, excluding Package Credits
     const earnings = appointmentsToday.reduce((acc: number, appt) => {
+        // If it's a package credit session, it doesn't count as "earnings today"
+        if (appt.paymentMethod === 'PACKAGE_CREDIT') return acc;
+
         const apptTotal = appt.services.reduce((sum: number, s) => sum + Number(s.priceSnapshot), 0);
         return acc + apptTotal;
     }, 0);
