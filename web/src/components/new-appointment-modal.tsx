@@ -364,7 +364,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                                                         }}
                                                         className="text-sky-600 focus:ring-sky-500 w-4 h-4"
                                                     />
-                                                    Usar 1 sessão de {credit.service.name} (Restam {credit.balance})
+                                                    Usar 1 sessão de {credit.service?.name || "Serviço"} (Restam {credit.balance})
                                                 </label>
                                             );
                                         })}
