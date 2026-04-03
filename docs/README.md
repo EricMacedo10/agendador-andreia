@@ -184,21 +184,30 @@ agendador-andreia/
 │   └── package.json
 ├── docs/                         # Documentação Técnica
 │   ├── README.md                 # Este guia mestre
-│   ├── FEATURES.md               # [NOVO] Lista detalhada de funcionalidades
+│   ├── FEATURES.md               # Lista detalhada de funcionalidades
 │   ├── PACKAGE_SYSTEM.md         # Guia do sistema de pacotes/créditos
 │   ├── DEPLOYMENT.md             # Instruções de implantação
 │   ├── SKILL_SENIOR_WORKFLOW.md  # Filosofia de desenvolvimento
-│   └── history/                  # [NOVO] Histórico de issues resolvidas
+│   └── history/                  # Histórico de desenvolvimento
+│       └── legacy-site/          # Arquivos do protótipo antigo
+├── issues/                       # Pendências e Bugs em aberto (Backlog)
 ├── package.json
 └── README.md                     # Redirecionamento para docs/README.md
 ```
 
 ---
 
-## 📅 Histórico e Funcionalidades
+## 🔧 Pendências e Roadmap
+
+- **[Backlog de Issues](file:///c:/Users/ericm/OneDrive/%C3%81rea%20de%20Trabalho/PESSOAL/Agendador%20Andreia/issues/)**: Veja o que ainda precisa ser ajustado ou implementado no sistema.
+    - *Destaque*: Cálculo proporcional de receita por serviço (Issue 2026-03-24).
+
+---
+
+## 📅 Histórico de Evolução
 
 - **[Lista de Funcionalidades](file:///c:/Users/ericm/OneDrive/%C3%81rea%20de%20Trabalho/PESSOAL/Agendador%20Andreia/docs/FEATURES.md)**: Explore o que o sistema é capaz de fazer hoje em 100% de produção.
-- **[Histórico de Desenvolvimento](file:///c:/Users/ericm/OneDrive/%C3%81rea%20de%20Trabalho/PESSOAL/Agendador%20Andreia/docs/history/)**: Acesse a documentação de issues e melhorias já completadas.
+- **[Arquivo Histórico](file:///c:/Users/ericm/OneDrive/%C3%81rea%20de%20Trabalho/PESSOAL/Agendador%20Andreia/docs/history/)**: Acesse a documentação de issues antigas, migrações de banco e o protótipo inicial (`legacy-site`).
 
 
 ---
