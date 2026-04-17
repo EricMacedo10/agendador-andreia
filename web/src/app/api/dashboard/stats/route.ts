@@ -58,7 +58,12 @@ export async function GET() {
         // If it's a package credit session, it doesn't count as "earnings today"
         if (appt.paymentMethod === 'PACKAGE_CREDIT') return acc;
 
-        const apptTotal = appt.services.reduce((sum: number, s) => sum + Number(s.priceSnapshot), 0);
+        // PRIORITIZE: Use paidPrice if it exists (real value charged)
+        // FALLBACK: Use sum of service snapshots (estimated value)
+        const apptTotal = appt.paidPrice 
+            ? Number(appt.paidPrice) 
+            : appt.services.reduce((sum: number, s) => sum + Number(s.priceSnapshot), 0);
+            
         return acc + apptTotal;
     }, 0);
 

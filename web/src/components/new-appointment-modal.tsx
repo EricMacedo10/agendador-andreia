@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { X, Calendar as CalendarIcon, Clock, User, Scissors, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
-type Client = { id: string; name: string; credits?: any[] };
+type Client = { id: string; name: string; balance: number; credits?: any[] };
 type Service = { id: string; name: string; duration: number; price: number };
 
 interface NewAppointmentModalProps {
@@ -31,7 +31,10 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
         duration: "30",  // DEPRECATED - Calculated from selectedServices
         isCheckout: false,
         price: "",
-        paymentMethod: "PIX"
+        paymentMethod: "PIX",
+        saveAsCredit: true, // If paid > total, save in wallet?
+        registerAsDebt: true, // If paid < total, save as debt?
+        useWalletBalance: false // Use existing credit?
     });
 
     useEffect(() => {
@@ -66,7 +69,10 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                     duration: totalDuration.toString(),
                     isCheckout: false,
                     price: appointmentToEdit.paidPrice ? appointmentToEdit.paidPrice.toString() : totalPrice.toString(),
-                    paymentMethod: appointmentToEdit.paymentMethod || "PIX"
+                    paymentMethod: appointmentToEdit.paymentMethod || "PIX",
+                    saveAsCredit: true,
+                    registerAsDebt: true,
+                    useWalletBalance: false
                 });
             } else if (preselectedDate) {
                 setSelectedServices([]);  // ← Clear selected services
@@ -144,11 +150,15 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
 
             const body: any = {
                 clientId: formData.clientId,
-                serviceIds: selectedServices.map(s => s.id),  // ← NEW: Array of service IDs
+                serviceIds: selectedServices.map(s => s.id),
                 date: dateTime.toISOString(),
                 useCreditForServiceId: useCreditForService,
                 buyPackageServiceId: buyPackage.serviceId,
-                buyPackageAmount: buyPackage.amount
+                buyPackageAmount: buyPackage.amount,
+                // Wallet Logic
+                saveAsCredit: formData.saveAsCredit,
+                registerAsDebt: formData.registerAsDebt,
+                useWalletBalance: formData.useWalletBalance
             };
 
             if (formData.isCheckout) {
@@ -173,11 +183,14 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                     clientId: "",
                     serviceId: "",
                     date: "",
-                    time: "09:00",
+                    time: "",
                     duration: "30",
                     isCheckout: false,
                     price: "",
-                    paymentMethod: "PIX"
+                    paymentMethod: "PIX",
+                    saveAsCredit: true,
+                    registerAsDebt: true,
+                    useWalletBalance: false
                 });
             } else {
                 const err = await res.json();
@@ -385,7 +398,12 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm text-emerald-800 font-bold mb-1">Valor Cobrado (R$)</label>
+                                    <div className="flex justify-between items-end mb-1">
+                                        <label className="block text-sm text-emerald-800 font-bold">Valor Recebido (Dinheiro/PIX)</label>
+                                        <span className="text-[10px] text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full font-bold">
+                                            Total Serviços: R$ {selectedServices.reduce((sum, s) => sum + Number(s.price), 0).toFixed(2)}
+                                        </span>
+                                    </div>
                                     <input
                                         type="number"
                                         step="0.01"
@@ -393,7 +411,68 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                                         className="w-full bg-white border border-emerald-300 rounded-lg p-3 text-emerald-900 font-bold text-xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                                         value={formData.price}
                                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                        placeholder="0,00"
                                     />
+                                    {selectedClient && (
+                                        <div className="mt-2 p-3 bg-white rounded-lg border border-emerald-100 shadow-sm space-y-3">
+                                            {/* Wallet Balance Context */}
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="text-zinc-500 font-bold">Saldo do Cliente na Carteira:</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`font-bold ${Number(selectedClient.balance) >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                                                        R$ {Number(selectedClient.balance).toFixed(2)}
+                                                    </span>
+                                                    {Number(selectedClient.balance) > 0 && (
+                                                        <label className="flex items-center gap-1 bg-emerald-100 text-emerald-700 px-2 py-1 rounded cursor-pointer hover:bg-emerald-200 transition-colors">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={formData.useWalletBalance}
+                                                                onChange={(e) => setFormData({...formData, useWalletBalance: e.target.checked})}
+                                                                className="w-3 h-3"
+                                                            />
+                                                            <span className="font-bold">Usar</span>
+                                                        </label>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Decisions based on input */}
+                                            {formData.price !== "" && (
+                                                <div className="pt-2 border-t border-zinc-100 space-y-2">
+                                                    {(() => {
+                                                        const serviceTotal = selectedServices.reduce((sum, s) => sum + Number(s.price), 0);
+                                                        const paid = Number(formData.price);
+                                                        const diff = paid - serviceTotal;
+                                                        
+                                                        if (diff > 0) {
+                                                            return (
+                                                                <div className="bg-sky-50 p-2 rounded border border-sky-100 animate-in fade-in zoom-in-95">
+                                                                    <p className="text-[10px] text-sky-800 font-bold mb-1">R$ {diff.toFixed(2)} recebidos a mais:</p>
+                                                                    <label className="flex items-center gap-2 text-xs text-sky-700 cursor-pointer">
+                                                                        <input type="checkbox" checked={formData.saveAsCredit} onChange={e => setFormData({...formData, saveAsCredit: e.target.checked})} />
+                                                                        Salvar como CRÉDITO para a próxima vez?
+                                                                    </label>
+                                                                    {!formData.saveAsCredit && <p className="text-[9px] text-zinc-500 italic mt-1">* Se desmarcado, entrará como Ganho Extra (Hoje).</p>}
+                                                                </div>
+                                                            );
+                                                        } else if (diff < 0) {
+                                                            return (
+                                                                <div className="bg-amber-50 p-2 rounded border border-amber-100 animate-in fade-in zoom-in-95">
+                                                                    <p className="text-[10px] text-amber-800 font-bold mb-1">Faltam R$ {Math.abs(diff).toFixed(2)} para o total:</p>
+                                                                    <label className="flex items-center gap-2 text-xs text-amber-700 cursor-pointer">
+                                                                        <input type="checkbox" checked={formData.registerAsDebt} onChange={e => setFormData({...formData, registerAsDebt: e.target.checked})} />
+                                                                        Registrar como DÍVIDA (Pagar depois)?
+                                                                    </label>
+                                                                    {!formData.registerAsDebt && <p className="text-[9px] text-zinc-500 italic mt-1">* Se desmarcado, será considerado como Desconto.</p>}
+                                                                </div>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })()}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div>

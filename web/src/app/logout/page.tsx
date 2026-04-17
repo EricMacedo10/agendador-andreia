@@ -11,10 +11,10 @@ export default function LogoutPage() {
     useEffect(() => {
         // Perform the actual sign out
         signOut({ redirect: false }).then(() => {
-            // Wait 2 seconds then redirect to login
+            // Wait a moment then redirect to login page (home)
             setTimeout(() => {
-                router.push("/api/auth/signin");
-            }, 2000);
+                router.push("/");
+            }, 500);
         });
     }, [router]);
 
@@ -44,7 +44,7 @@ export default function LogoutPage() {
                 </div>
 
                 <button
-                    onClick={() => router.push("/api/auth/signin")}
+                    onClick={() => router.push("/")}
                     className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-6 rounded-xl transition-colors"
                 >
                     Ir para Login Agora
