@@ -164,7 +164,13 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
             if (formData.isCheckout) {
                 body.status = "COMPLETED";
                 body.paymentMethod = formData.paymentMethod;
-                body.paidPrice = formData.price;
+                // Always send as number; empty string defaults to 0
+                const priceValue = formData.price === "" ? 0 : Number(formData.price);
+                body.paidPrice = priceValue;
+                // If paying 0 without explicitly unchecking, always register as debt
+                if (priceValue === 0) {
+                    body.registerAsDebt = true;
+                }
             }
 
             const res = await fetch(url, {
@@ -407,7 +413,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSuccess, preselectedDat
                                     <input
                                         type="number"
                                         step="0.01"
-                                        required
+                                        min="0"
                                         className="w-full bg-white border border-emerald-300 rounded-lg p-3 text-emerald-900 font-bold text-xl focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                                         value={formData.price}
                                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
