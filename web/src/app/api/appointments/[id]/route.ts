@@ -146,9 +146,11 @@ export async function PUT(
                         data: {
                             clientId: targetClientId!,
                             amount: finalBalanceChange,
-                            description: finalBalanceChange > 0
-                                ? `Crédito (Agendamento #${id})`
-                                : `Saldo utilizado/Dívida (Agendamento #${id})`,
+                            description: (() => {
+                                if (finalBalanceChange > 0) return `Crédito guardado (Agendamento)`;
+                                if (registerAsDebt) return `Dívida registrada (Pagar depois)`;
+                                return `Crédito utilizado (Agendamento)`;
+                            })(),
                             appointmentId: id
                         }
                     });
