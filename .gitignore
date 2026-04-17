@@ -12,3 +12,5 @@ yarn-debug.log
 .env*.local
 
 SENHA_ATUALIZAR_PRODUCAO.md
+commit_msg.txt
+merge_msg.txt
