@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { auth } from "@/auth";
 
 // Correctly type the params argument for dynamic routes in App Router
 export async function DELETE(
@@ -26,14 +27,135 @@ export async function PUT(
     { params }: { params: any }
 ) {
     try {
+        const session = await auth();
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { email: session.user.email },
+            select: { id: true }
+        });
+
+        if (!user) {
+            return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
+        }
+
         const { id } = await params;
         const body = await request.json();
-        const { date, status, clientId, paymentMethod, useCreditForServiceId, buyPackageServiceId, buyPackageAmount } = body;
-        const paidPrice = body.paidPrice !== undefined ? Number(body.paidPrice) : undefined;
+        const { 
+            date, status, clientId, paymentMethod, 
+            useCreditForServiceId, buyPackageServiceId, buyPackageAmount, 
+            serviceIds, saveAsCredit, registerAsDebt, useWalletBalance 
+        } = body;
+        const paidPriceInput = body.paidPrice !== undefined ? Number(body.paidPrice) : undefined;
 
         // Use transaction to ensure consistency
         const result = await prisma.$transaction(async (tx) => {
-            // 1. Update the main appointment fields
+            // 0. Get current client data for wallet balance
+            const currentAppt = await tx.appointment.findUnique({ 
+                where: { id },
+                select: { clientId: true }
+            });
+            const targetClientId = clientId || currentAppt?.clientId;
+            const client = await tx.client.findUnique({
+                where: { id: targetClientId },
+                select: { balance: true }
+            });
+            const oldBalance = Number(client?.balance || 0);
+
+            // 1. Handle service updates if serviceIds is provided
+            let totalDurationMinutes = undefined;
+            if (serviceIds && Array.isArray(serviceIds)) {
+                const servicesData = await tx.service.findMany({
+                    where: { id: { in: serviceIds } }
+                });
+                if (servicesData.length !== serviceIds.length) {
+                    throw new Error("Um ou mais serviços não encontrados");
+                }
+                await tx.appointmentService.deleteMany({ where: { appointmentId: id } });
+                await tx.appointmentService.createMany({
+                    data: servicesData.map((s, index) => ({
+                        appointmentId: id,
+                        serviceId: s.id,
+                        priceSnapshot: s.price,
+                        order: index + 1
+                    }))
+                });
+                totalDurationMinutes = servicesData.reduce((sum, s) => sum + s.duration, 0);
+            }
+
+            // Fetch the services again (including snapshots) to get the total
+            const apptWithServices = await tx.appointment.findUniqueOrThrow({
+                where: { id },
+                include: { services: true }
+            });
+            const serviceTotal = apptWithServices.services.reduce((sum, s) => sum + Number(s.priceSnapshot), 0);
+
+            // 2. Calculate final revenue and wallet changes
+            let revenueForReport = paidPriceInput;
+            let finalBalanceChange = 0;
+
+            if (status === 'COMPLETED' && paidPriceInput !== undefined) {
+                const actualPaid = paidPriceInput;
+                const surplus = actualPaid - serviceTotal;
+                
+                // Logic for balance change
+                if (surplus > 0) {
+                    // Paid more than service
+                    if (saveAsCredit) {
+                        finalBalanceChange = surplus;
+                        // Revenue today is only the service value + any old debt being cleared
+                        const debtBeingCleared = oldBalance < 0 ? Math.min(Math.abs(oldBalance), surplus) : 0;
+                        revenueForReport = serviceTotal + debtBeingCleared;
+                    } else {
+                        // Andreia charged more (no credit)
+                        finalBalanceChange = 0;
+                        revenueForReport = actualPaid;
+                    }
+                } else if (surplus < 0) {
+                    // Paid less than service
+                    if (registerAsDebt) {
+                        finalBalanceChange = surplus;
+                        revenueForReport = actualPaid;
+                    } else {
+                        // It was a discount
+                        finalBalanceChange = 0;
+                        revenueForReport = actualPaid;
+                    }
+                } else {
+                    finalBalanceChange = 0;
+                    revenueForReport = actualPaid;
+                }
+
+                // Handle using existing wallet credit
+                if (useWalletBalance && oldBalance > 0) {
+                    const amountToUse = Math.min(oldBalance, Math.max(0, serviceTotal - actualPaid));
+                    finalBalanceChange -= amountToUse;
+                    revenueForReport = (revenueForReport || 0) + amountToUse;
+                }
+
+                // Apply balance change and history
+                if (finalBalanceChange !== 0) {
+                    await tx.client.update({
+                        where: { id: targetClientId },
+                        data: { balance: { increment: finalBalanceChange } }
+                    });
+
+                    await tx.walletHistory.create({
+                        data: {
+                            clientId: targetClientId!,
+                            amount: finalBalanceChange,
+                            description: finalBalanceChange > 0
+                                ? `Crédito (Agendamento #${id})`
+                                : `Saldo utilizado/Dívida (Agendamento #${id})`,
+                            appointmentId: id
+                        }
+                    });
+                }
+            }
+
+            // 3. Update the main appointment fields
             const updatedAppointment = await tx.appointment.update({
                 where: { id },
                 data: {
@@ -41,7 +163,8 @@ export async function PUT(
                     status,
                     clientId,
                     paymentMethod,
-                    paidPrice,
+                    paidPrice: revenueForReport,
+                    totalDurationMinutes,
                 },
                 include: {
                     services: {
@@ -50,16 +173,16 @@ export async function PUT(
                 }
             });
 
-            // Handle Credits if completed
+            // 4. Handle Service Credits (Packages) if completed
             if (status === 'COMPLETED') {
                 if (useCreditForServiceId) {
                     await tx.clientCredit.update({
-                        where: { clientId_serviceId: { clientId: clientId || updatedAppointment.clientId, serviceId: useCreditForServiceId } },
+                        where: { clientId_serviceId: { clientId: targetClientId!, serviceId: useCreditForServiceId } },
                         data: { balance: { decrement: 1 } }
                     });
                     await tx.creditHistory.create({
                         data: {
-                            clientId: clientId || updatedAppointment.clientId,
+                            clientId: targetClientId!,
                             serviceId: useCreditForServiceId,
                             amount: -1,
                             reason: `Abatido no agendamento ${id}`
@@ -71,13 +194,13 @@ export async function PUT(
                     const amt = parseInt(buyPackageAmount, 10);
                     if (amt > 0) {
                         await tx.clientCredit.upsert({
-                            where: { clientId_serviceId: { clientId: clientId || updatedAppointment.clientId, serviceId: buyPackageServiceId } },
+                            where: { clientId_serviceId: { clientId: targetClientId!, serviceId: buyPackageServiceId } },
                             update: { balance: { increment: amt } },
-                            create: { clientId: clientId || updatedAppointment.clientId, serviceId: buyPackageServiceId, balance: amt }
+                            create: { clientId: targetClientId!, serviceId: buyPackageServiceId, balance: amt }
                         });
                         await tx.creditHistory.create({
                             data: {
-                                clientId: clientId || updatedAppointment.clientId,
+                                clientId: targetClientId!,
                                 serviceId: buyPackageServiceId,
                                 amount: amt,
                                 reason: `Pacote adquirido no agendamento ${id}`
@@ -87,27 +210,25 @@ export async function PUT(
                 }
             }
 
-            // 2. If paidPrice is updated, distribute it among services
-            if (paidPrice !== undefined) {
+            // 3. If paidPrice is updated, distribute it among the (potentially new) services
+            if (paidPriceInput !== undefined) {
                 const appointmentServices = updatedAppointment.services;
 
                 if (appointmentServices.length > 0) {
                     const currentTotal = appointmentServices.reduce((sum, s) => sum + Number(s.priceSnapshot), 0);
 
-                    // Distribute new price proportionally
                     if (currentTotal > 0) {
-                        let remaining = paidPrice;
+                        let remaining = Number(revenueForReport || 0);
 
                         for (let i = 0; i < appointmentServices.length; i++) {
                             const appService = appointmentServices[i];
                             let newSnapshot = 0;
 
                             if (i === appointmentServices.length - 1) {
-                                // Last item gets the remainder to ensure exact match
                                 newSnapshot = remaining;
                             } else {
                                 const weight = Number(appService.priceSnapshot) / currentTotal;
-                                newSnapshot = Math.round((paidPrice * weight) * 100) / 100;
+                                newSnapshot = Math.round((Number(revenueForReport || 0) * weight) * 100) / 100;
                             }
 
                             remaining -= newSnapshot;
@@ -118,8 +239,7 @@ export async function PUT(
                             });
                         }
                     } else {
-                        // Edge case: current total is 0, distribute equally
-                        const share = paidPrice / appointmentServices.length;
+                        const share = Number(revenueForReport || 0) / appointmentServices.length;
                         for (const s of appointmentServices) {
                             await tx.appointmentService.update({
                                 where: { id: s.id },
@@ -134,7 +254,7 @@ export async function PUT(
             return await tx.appointment.findUniqueOrThrow({
                 where: { id },
                 include: {
-                    services: { include: { service: true } },
+                    services: { include: { service: true }, orderBy: { order: 'asc' } },
                     client: true
                 }
             });
@@ -149,3 +269,4 @@ export async function PUT(
         );
     }
 }
+
