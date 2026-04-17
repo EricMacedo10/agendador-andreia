@@ -1,39 +1,25 @@
-# Archived Issues
+# Histórico de Desenvolvimento
 
-Este diretório contém documentação de issues que foram **completamente implementadas** e fazem parte do sistema em produção.
+Este diretório contém o protótipo original do sistema (pasta `legacy-site`) para referência histórica.
 
-## ✅ Issues Implementadas
+## ✅ Issues Implementadas (Arquivadas)
 
-### Issue #1: Múltiplos Serviços por Agendamento
-**Status**: Implementado e em produção  
-**Data**: Dezembro 2025  
-**Descrição**: Sistema permite adicionar múltiplos serviços em um único agendamento, com cálculo automático de duração e preço total.
+Todos os issues históricos foram implementados e estão em produção. Os arquivos de documentação foram removidos após conclusão.
 
-### Issue #2: Bloqueio de Dias
-**Status**: Implementado e em produção  
-**Data**: Dezembro 2025  
-**Descrição**: Sistema permite bloquear dias inteiros ou períodos específicos, com integração completa na agenda online.
+### Resumo do que foi construído:
 
-### Issue #3: Relatórios Avançados
-**Status**: Implementado e em produção  
-**Data**: Dezembro 2025  
-**Descrição**: Relatórios financeiros completos com análise de clientes VIP, serviços mais lucrativos e breakdown mensal.
+| Issue | Feature | Status |
+|---|---|---|
+| #1 | Múltiplos Serviços por Agendamento | ✅ Produção |
+| #2 | Bloqueio de Dias Específicos | ✅ Produção |
+| #3 | Relatórios Avançados (Financeiro, Top Serviços, Clientes VIP) | ✅ Produção |
+| #4 | Sistema de Pacotes/Créditos por Serviço | ✅ Produção |
+| #5 | Carteira Digital (Créditos e Dívidas financeiras por cliente) | ✅ Produção |
+| #6 | Cálculo proporcional de receita por serviço no checkout | ✅ Produção |
+| #7 | Dashboard com `paidPrice` (valor real cobrado) | ✅ Produção |
+| #8 | Edição de serviços em agendamentos existentes | ✅ Produção |
+| #9 | Logout sem loop de redirecionamento | ✅ Produção |
 
-## 📝 Propósito deste Arquivo
+## 📁 Conteúdo Atual
 
-Estes documentos foram movidos para `archived/` porque as funcionalidades descritas já estão **100% funcionais** no sistema. Mantemos os arquivos para:
-
-1. **Referência histórica** do processo de desenvolvimento
-2. **Documentação técnica** de como as features foram implementadas
-3. **Casos de teste** que podem ser reutilizados
-
-## 🔗 Documentação Atual
-
-Para informações sobre o sistema atual, consulte:
-- `README.md` - Visão geral e funcionalidades
-- `docs/` - Documentação técnica atualizada
-- `FEATURES.md` - Lista completa de features implementadas
-
----
-
-**Última atualização**: 2026-01-07
+- **`legacy-site/`** — Arquivos do protótipo HTML/CSS/JS original, mantidos apenas para referência histórica.
