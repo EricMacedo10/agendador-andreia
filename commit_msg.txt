@@ -1,6 +1,0 @@
-chore: limpar backlog de issues resolvidos
-
-- Remove issues/2026-03-24-fix-top-services-revenue-proportional.md (implementado)
-- Remove pasta issues/ (agora vazia)
-- Atualiza README.md: remove referencia a issues/ e ao issue 2026-03-24
-- Adiciona sumario das implementacoes de Abril/2026 no README
