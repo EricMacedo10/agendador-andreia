@@ -1,25 +1,21 @@
 # Histórico de Desenvolvimento
 
-Este diretório contém o protótipo original do sistema (pasta `legacy-site`) para referência histórica.
+Este diretório contém a memória da evolução do Agendador Andreia e o protótipo original.
 
-## ✅ Issues Implementadas (Arquivadas)
+## ✅ Marcos de Produção (Marcos Épicos)
 
-Todos os issues históricos foram implementados e estão em produção. Os arquivos de documentação foram removidos após conclusão.
-
-### Resumo do que foi construído:
-
-| Issue | Feature | Status |
+| Data | Marco | Descrição |
 |---|---|---|
-| #1 | Múltiplos Serviços por Agendamento | ✅ Produção |
-| #2 | Bloqueio de Dias Específicos | ✅ Produção |
-| #3 | Relatórios Avançados (Financeiro, Top Serviços, Clientes VIP) | ✅ Produção |
-| #4 | Sistema de Pacotes/Créditos por Serviço | ✅ Produção |
-| #5 | Carteira Digital (Créditos e Dívidas financeiras por cliente) | ✅ Produção |
-| #6 | Cálculo proporcional de receita por serviço no checkout | ✅ Produção |
-| #7 | Dashboard com `paidPrice` (valor real cobrado) | ✅ Produção |
-| #8 | Edição de serviços em agendamentos existentes | ✅ Produção |
-| #9 | Logout sem loop de redirecionamento | ✅ Produção |
+| **Abr/2026** | **Carteira Digital 2.0** | Implementação de créditos, dívidas, pagamentos parciais e recebimentos manuais avulsos. |
+| **Abr/2026** | **Faturamento Real** | Migração total para `paidPrice` em vez de snapshots no dashboard e relatórios. |
+| **Abr/2026** | **Estabilidade Global** | Correção definitiva de Timezone no bloqueio de dias e correção do loop de logout. |
+| **Jan/2026** | **Múltiplos Serviços** | Lógica de precificação proporcional por peso e suporte a vários serviços por horário. |
+| **Out/2025** | **Notificações & PWA** | Integração com Firebase Cloud Messaging e manifest para instalação mobile. |
+| **Jul/2025** | **Lançamento Versão 1.0** | Migração do protótipo legado para o App Router (Next.js 15). |
 
-## 📁 Conteúdo Atual
+## 📁 Conteúdo do Diretório
 
-- **`legacy-site/`** — Arquivos do protótipo HTML/CSS/JS original, mantidos apenas para referência histórica.
+- **`legacy-site/`** — Arquivos do protótipo HTML/CSS/JS original, mantidos apenas para referência histórico-sentimental.
+
+---
+*Backlog 100% Finalizado | Zero Issues Pendentes*
