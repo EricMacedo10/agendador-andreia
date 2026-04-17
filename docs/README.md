@@ -190,7 +190,6 @@ agendador-andreia/
 │   ├── SKILL_SENIOR_WORKFLOW.md  # Filosofia de desenvolvimento
 │   └── history/                  # Histórico de desenvolvimento
 │       └── legacy-site/          # Arquivos do protótipo antigo
-├── issues/                       # Pendências e Bugs em aberto (Backlog)
 ├── package.json
 └── README.md                     # Redirecionamento para docs/README.md
 ```
@@ -199,8 +198,14 @@ agendador-andreia/
 
 ## 🔧 Pendências e Roadmap
 
-- **[Backlog de Issues](file:///c:/Users/ericm/OneDrive/%C3%81rea%20de%20Trabalho/PESSOAL/Agendador%20Andreia/issues/)**: Veja o que ainda precisa ser ajustado ou implementado no sistema.
-    - *Destaque*: Cálculo proporcional de receita por serviço (Issue 2026-03-24).
+> ✅ **Backlog limpo!** Todos os issues registrados foram implementados e estão em produção.
+
+**Últimas implementações concluídas (Abril/2026):**
+- Sistema de Carteira Digital por cliente (créditos e dívidas financeiras)
+- Dashboard com valor real cobrado (`paidPrice`) em vez do preço de tabela
+- Edição de serviços em agendamentos existentes sem erros
+- Logout corrigido (sem loop de redirecionamento)
+- Cálculo proporcional de receita por serviço (distribuição por peso no checkout)
 
 ---
 
