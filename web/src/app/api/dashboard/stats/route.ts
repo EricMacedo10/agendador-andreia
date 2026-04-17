@@ -53,6 +53,21 @@ export async function GET() {
         // We'll filter in JS to handle both PENDING (no payment method) and COMPLETED (with payment method)
     })
 
+    // Fetch manual debt payments (incoming money without an appointment)
+    const manualPaymentsToday = await prisma.walletHistory.findMany({
+        where: {
+            appointmentId: null, // Only manual entries
+            amount: { gt: 0 },   // Only payments received
+            createdAt: {
+                gte: start,
+                lte: end
+            }
+        },
+        select: { amount: true }
+    });
+
+    const manualTotal = manualPaymentsToday.reduce((acc, p) => acc + Number(p.amount), 0);
+
     // Calculate earnings from all services using priceSnapshot, excluding Package Credits
     const earnings = appointmentsToday.reduce((acc: number, appt) => {
         // If it's a package credit session, it doesn't count as "earnings today"
@@ -66,6 +81,8 @@ export async function GET() {
             
         return acc + apptTotal;
     }, 0);
+
+    const totalEarnings = earnings + manualTotal;
 
     // 3. Next Client
     // Find the first PENDING or CONFIRMED appointment after NOW (exclude COMPLETED)
@@ -94,7 +111,7 @@ export async function GET() {
 
     return NextResponse.json({
         count,
-        earnings,
+        earnings: totalEarnings,
         nextClient: nextAppointment ? {
             name: nextAppointment.client.name,
             service: nextAppointment.services.map((s) => s.service.name).join(', '),

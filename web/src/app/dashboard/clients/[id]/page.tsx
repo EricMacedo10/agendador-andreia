@@ -5,6 +5,8 @@ import { ptBR } from "date-fns/locale";
 import { ArrowLeft, Calendar, User, Phone, DollarSign, Clock } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ReceivePaymentModal from "@/components/receive-payment-modal";
+import { Wallet } from "lucide-react";
 
 export default async function ClientDetailsPage({ params }: { params: any }) {
     // Next.js 15+ compatible await for params
@@ -17,7 +19,11 @@ export default async function ClientDetailsPage({ params }: { params: any }) {
                 orderBy: { date: 'desc' },
                 include: { services: { include: { service: true } } }
             },
-            credits: { include: { service: true } }
+            credits: { include: { service: true } },
+            walletHistory: {
+                orderBy: { createdAt: 'desc' },
+                take: 5
+            }
         }
     });
 
@@ -74,7 +80,53 @@ export default async function ClientDetailsPage({ params }: { params: any }) {
                 </div>
             </div>
 
-            {/* Client Wallet (Credits) */}
+            {/* Carteira Financeira (Dívidas/Créditos em R$) */}
+            <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
+                    <h2 className="font-bold text-zinc-900 flex items-center gap-2">
+                        <Wallet className="text-zinc-400" size={20} /> Carteira Financeira
+                    </h2>
+                    <ReceivePaymentModal 
+                        clientId={client.id} 
+                        clientName={client.name} 
+                        currentBalance={Number(client.balance || 0)} 
+                    />
+                </div>
+                <div className="p-6 flex flex-col md:flex-row gap-6">
+                    <div className={`p-4 rounded-xl flex-1 flex flex-col justify-center items-center ${Number(client.balance || 0) < 0 ? 'bg-rose-50 border border-rose-100' : Number(client.balance || 0) > 0 ? 'bg-emerald-50 border border-emerald-100' : 'bg-zinc-50 border border-zinc-100'}`}>
+                        <p className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-1">Saldo Atual</p>
+                        <p className={`text-3xl font-black ${Number(client.balance || 0) < 0 ? 'text-rose-600' : Number(client.balance || 0) > 0 ? 'text-emerald-600' : 'text-zinc-600'}`}>
+                            R$ {Number(client.balance || 0).toFixed(2)}
+                        </p>
+                        <p className="text-xs mt-1 font-medium">
+                            {Number(client.balance || 0) < 0 ? '🔴 Dívida pendente' : Number(client.balance || 0) > 0 ? '🟢 Crédito disponível' : '⚪ Sem pendências'}
+                        </p>
+                    </div>
+
+                    <div className="flex-[2] space-y-3">
+                        <p className="text-sm font-bold text-zinc-700">Últimas Movimentações</p>
+                        <div className="space-y-2">
+                            {client.walletHistory.length === 0 ? (
+                                <p className="text-zinc-400 text-xs py-4 text-center italic">Nenhuma movimentação financeira recente.</p>
+                            ) : (
+                                client.walletHistory.map((h: any) => (
+                                    <div key={h.id} className="flex justify-between items-center p-2 rounded-lg bg-zinc-50 border border-zinc-100 text-xs">
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-zinc-800">{h.description}</span>
+                                            <span className="text-zinc-400">{format(new Date(h.createdAt), "dd/MM/yyyy HH:mm")}</span>
+                                        </div>
+                                        <span className={`font-black ${h.amount > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                            {h.amount > 0 ? '+' : ''} R$ {Number(h.amount).toFixed(2)}
+                                        </span>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Client Wallet (Credits/Packages) */}
             <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-zinc-100 flex justify-between items-center">
                     <h2 className="font-bold text-zinc-900 flex items-center gap-2">
