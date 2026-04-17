@@ -144,10 +144,16 @@ export async function POST(request: Request) {
         const force = new URL(request.url).searchParams.get('force') === 'true';
 
         if (!force) {
+            // Use UTC midnight strings — same format as what is stored in the DB
+            // This prevents the UTC-3 timezone shift that was returning conflicts
+            // from the NEXT day instead of the selected day
+            const conflictStart = new Date(startDate + 'T00:00:00.000Z');
+            const conflictEnd   = new Date(endDate   + 'T23:59:59.999Z');
+
             const conflicts = await checkAppointmentConflicts(
                 userId,
-                start,
-                end,
+                conflictStart,
+                conflictEnd,
                 blockType,
                 startTime,
                 endTime
@@ -160,7 +166,8 @@ export async function POST(request: Request) {
                         date: appt.date.toISOString().split('T')[0],
                         time: appt.date.toLocaleTimeString('pt-BR', {
                             hour: '2-digit',
-                            minute: '2-digit'
+                            minute: '2-digit',
+                            timeZone: 'America/Sao_Paulo'
                         }),
                         clientName: appt.client.name
                     }))
@@ -217,7 +224,7 @@ async function checkAppointmentConflicts(
             status: { not: "CANCELLED" },
             date: {
                 gte: startDate,
-                lte: new Date(endDate.getTime() + 24 * 60 * 60 * 1000) // Include end date
+                lte: endDate
             }
         },
         include: {
