@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TrendingUp, Award, Users, DollarSign, Calendar, CreditCard } from "lucide-react";
+import { TrendingUp, Award, Users, DollarSign, Calendar, CreditCard, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -52,6 +52,14 @@ type ClientData = {
     favoriteService: string;
 };
 
+type DebtClientData = {
+    id: string;
+    name: string;
+    phone: string;
+    debtAmount: number;
+    lastVisit: string | null;
+};
+
 export default function ReportsPage() {
     const [availableYears, setAvailableYears] = useState<number[]>([]);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -59,6 +67,7 @@ export default function ReportsPage() {
     const [topServices, setTopServices] = useState<ServiceData[]>([]);
     const [servicesMetric, setServicesMetric] = useState<'count' | 'revenue'>('count');
     const [topClients, setTopClients] = useState<ClientData[]>([]);
+    const [debtClients, setDebtClients] = useState<DebtClientData[]>([]);
     const [loading, setLoading] = useState(true);
 
     // Fetch available years on mount
@@ -93,19 +102,22 @@ export default function ReportsPage() {
     const fetchReports = async () => {
         setLoading(true);
         try {
-            const [summaryRes, servicesRes, clientsRes] = await Promise.all([
+            const [summaryRes, servicesRes, clientsRes, debtRes] = await Promise.all([
                 fetch(`/api/reports/summary?year=${selectedYear}`),
                 fetch(`/api/reports/top-services?year=${selectedYear}&metric=${servicesMetric}`),
-                fetch(`/api/reports/top-clients?year=${selectedYear}&limit=10`)
+                fetch(`/api/reports/top-clients?year=${selectedYear}&limit=10`),
+                fetch(`/api/reports/debt-clients`)
             ]);
 
             const summaryData = await summaryRes.json();
             const servicesData = await servicesRes.json();
             const clientsData = await clientsRes.json();
+            const debtData = await debtRes.json();
 
             setSummary(summaryData);
             setTopServices(servicesData.services || []);
             setTopClients(clientsData.clients || []);
+            setDebtClients(debtData.clients || []);
         } catch (error) {
             console.error("Error fetching reports:", error);
         } finally {
@@ -367,6 +379,43 @@ export default function ReportsPage() {
                     </div>
                 ) : (
                     <p className="text-zinc-500 text-center py-4">Nenhum dado disponível</p>
+                )}
+            </div>
+
+            {/* Clientes Inadimplentes */}
+            <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-sm">
+                <h2 className="text-lg font-bold text-zinc-900 mb-4 flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-rose-600" />
+                    Clientes Inadimplentes
+                </h2>
+                {debtClients.length > 0 ? (
+                    <div className="space-y-4">
+                        {debtClients.map((client) => (
+                            <div key={client.id} className="border-b border-zinc-100 pb-4 flex justify-between items-center">
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-zinc-900 truncate">{client.name}</p>
+                                    <p className="text-sm text-zinc-500 flex items-center gap-2 mt-1">
+                                        <span>📱 {client.phone}</span>
+                                        {client.lastVisit && (
+                                            <span>• Última visita: {format(new Date(client.lastVisit), 'dd/MM/yyyy')}</span>
+                                        )}
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xs text-rose-500 font-bold uppercase tracking-wider mb-1">Dívida</p>
+                                    <span className="font-black text-rose-600 text-lg">{formatCurrency(client.debtAmount)}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-8">
+                        <div className="w-16 h-16 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                            <span className="text-3xl">🎉</span>
+                        </div>
+                        <p className="text-zinc-800 font-bold text-lg">Inadimplência Zero!</p>
+                        <p className="text-zinc-500 text-sm mt-1">Nenhum cliente possui dívidas pendentes atualmente.</p>
+                    </div>
                 )}
             </div>
         </div>
