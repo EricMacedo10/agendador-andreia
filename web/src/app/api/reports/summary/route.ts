@@ -38,14 +38,17 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
 
+        const startDate = new Date(`${year}-01-01T00:00:00.000Z`);
+        const endDate = new Date(`${year}-12-31T23:59:59.999Z`);
+
         // Fetch appointments for the year
         const appointments = await prisma.appointment.findMany({
             where: {
                 userId: user.id,
                 status: 'COMPLETED',
                 date: {
-                    gte: new Date(`${year}-01-01T00:00:00.000Z`),
-                    lte: new Date(`${year}-12-31T23:59:59.999Z`)
+                    gte: startDate,
+                    lte: endDate
                 }
             },
             select: {
@@ -55,8 +58,34 @@ export async function GET(request: Request) {
             }
         });
 
+        // Fetch manual payments (debt payments/manual credits) from WalletHistory
+        // We only count positive adjustments that are NOT linked to an appointment 
+        // OR are specifically debt payments which are already handled via appointmentId: null in the modal
+        const manualPayments = await prisma.walletHistory.findMany({
+            where: {
+                clientId: {
+                    in: await prisma.client.findMany({
+                        select: { id: true }
+                    }).then(clients => clients.map(c => c.id))
+                },
+                amount: { gt: 0 },
+                createdAt: {
+                    gte: startDate,
+                    lte: endDate
+                }
+            },
+            select: {
+                amount: true,
+                createdAt: true,
+                description: true
+            }
+        });
+
         // Calculate totals
-        const totalRevenue = appointments.reduce((sum, a) => sum + Number(a.paidPrice || 0), 0);
+        const appointmentRevenue = appointments.reduce((sum, a) => sum + Number(a.paidPrice || 0), 0);
+        const manualRevenue = manualPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+        
+        const totalRevenue = appointmentRevenue + manualRevenue;
         const totalAppointments = appointments.length;
         const averageTicket = totalAppointments > 0 ? totalRevenue / totalAppointments : 0;
 
@@ -73,16 +102,23 @@ export async function GET(request: Request) {
             appointments: 0
         }));
 
-        // Fill in actual data
+        // Fill in appointment data
         appointments.forEach(appt => {
             const month = new Date(appt.date).getMonth(); // 0-indexed
             monthlyData[month].revenue += Number(appt.paidPrice || 0);
             monthlyData[month].appointments++;
         });
 
+        // Fill in manual payments data
+        manualPayments.forEach(payment => {
+            const month = new Date(payment.createdAt).getMonth();
+            monthlyData[month].revenue += Number(payment.amount || 0);
+        });
+
         // Payment method breakdown
         const paymentMethodMap = new Map<string, { count: number; total: number }>();
 
+        // From appointments
         appointments.forEach(appt => {
             if (!appt.paymentMethod) return;
 
@@ -93,6 +129,22 @@ export async function GET(request: Request) {
             const data = paymentMethodMap.get(appt.paymentMethod)!;
             data.count++;
             data.total += Number(appt.paidPrice || 0);
+        });
+
+        // From manual payments (deduce method from description if possible, else 'OUTROS')
+        manualPayments.forEach(p => {
+            let method = 'OTHER';
+            if (p.description.includes('PIX')) method = 'PIX';
+            else if (p.description.includes('Dinheiro')) method = 'CASH';
+            else if (p.description.includes('Cartão')) method = 'CREDIT_CARD';
+
+            if (!paymentMethodMap.has(method)) {
+                paymentMethodMap.set(method, { count: 0, total: 0 });
+            }
+
+            const data = paymentMethodMap.get(method)!;
+            data.count++;
+            data.total += Number(p.amount || 0);
         });
 
         const paymentMethodBreakdown = Array.from(paymentMethodMap.entries())

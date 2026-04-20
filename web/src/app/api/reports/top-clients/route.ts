@@ -35,24 +35,39 @@ export async function GET(request: Request) {
         const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
         const limit = parseInt(searchParams.get('limit') || '10');
 
+        const startDate = new Date(`${year}-01-01T00:00:00.000Z`);
+        const endDate = new Date(`${year}-12-31T23:59:59.999Z`);
+
         // Fetch appointments for the year
         const appointments = await prisma.appointment.findMany({
             where: {
                 userId: user.id,
                 status: 'COMPLETED',
                 date: {
-                    gte: new Date(`${year}-01-01T00:00:00.000Z`),
-                    lte: new Date(`${year}-12-31T23:59:59.999Z`)
+                    gte: startDate,
+                    lte: endDate
                 }
             },
             include: {
                 client: true,
-                services: {  // ← NEW: Include all services
+                services: {
                     include: {
                         service: true
                     }
                 }
             }
+        });
+
+        // Fetch manual payments (debt payments/manual credits) from WalletHistory
+        const manualPayments = await prisma.walletHistory.findMany({
+            where: {
+                amount: { gt: 0 },
+                createdAt: {
+                    gte: startDate,
+                    lte: endDate
+                }
+            },
+            include: { client: true }
         });
 
         // Group by client
@@ -68,6 +83,7 @@ export async function GET(request: Request) {
             };
         } = {};
 
+        // Process appointments
         appointments.forEach(appt => {
             const clientId = appt.clientId;
             if (!clientStats[clientId]) {
@@ -91,7 +107,6 @@ export async function GET(request: Request) {
                 stats.lastVisit = appt.date;
             }
 
-            // ← NEW: Track services for favorite calculation - iterate through all services
             appt.services.forEach(appointmentService => {
                 const serviceId = appointmentService.serviceId;
                 if (!stats.services[serviceId]) {
@@ -102,6 +117,29 @@ export async function GET(request: Request) {
                 }
                 stats.services[serviceId].count += 1;
             });
+        });
+
+        // Process manual payments
+        manualPayments.forEach(p => {
+            const clientId = p.clientId;
+            if (!clientStats[clientId]) {
+                clientStats[clientId] = {
+                    id: clientId,
+                    name: p.client.name,
+                    phone: p.client.phone,
+                    visits: 0,
+                    totalSpent: 0,
+                    lastVisit: p.createdAt,
+                    services: {}
+                };
+            }
+            
+            const stats = clientStats[clientId];
+            stats.totalSpent += Number(p.amount || 0);
+            
+            if (p.createdAt > stats.lastVisit) {
+                stats.lastVisit = p.createdAt;
+            }
         });
 
         // Convert to array and calculate favorite service
