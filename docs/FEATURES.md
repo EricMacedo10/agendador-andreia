@@ -167,6 +167,11 @@
 - Valor total por método
 - Ordenação por valor
 
+### Controle de Inadimplência (Devedores)
+- Tracking em tempo real de clientes com carteira/saldo negativo.
+- Dados de contato direto (WhatsApp/Telefone) e data da última visita.
+- Sincronização automática assim que a dívida é quitada no checkout ou no recebimento avulso.
+
 ---
 
 ## 💾 Backup e Restauração
