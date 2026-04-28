@@ -1,17 +1,21 @@
+import { NextResponse } from 'next/server';
 
+export async function GET() {
+    const swContent = `
 // Import Firebase Messaging for background notifications
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
 // Initialize Firebase in Service Worker
+// Values injected via Next.js Route Handler from environment variables
 firebase.initializeApp({
-    apiKey: "AIzaSyAFqU9mpPpDs5qKvm4nsOWcEHGSJos0YEg",
-    authDomain: "agendador-andreia.firebaseapp.com",
-    projectId: "agendador-andreia",
-    storageBucket: "agendador-andreia.firebasestorage.app",
-    messagingSenderId: "61392425666",
-    appId: "1:61392425666:web:457e48f21b7b9296fbe15b",
-    measurementId: "G-4MVYWTR75Y"
+    apiKey: "${process.env.NEXT_PUBLIC_FIREBASE_API_KEY || ''}",
+    authDomain: "${process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || ''}",
+    projectId: "${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || ''}",
+    storageBucket: "${process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || ''}",
+    messagingSenderId: "${process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || ''}",
+    appId: "${process.env.NEXT_PUBLIC_FIREBASE_APP_ID || ''}",
+    measurementId: "${process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || ''}"
 });
 
 const messaging = firebase.messaging();
@@ -69,3 +73,12 @@ self.addEventListener('fetch', (event) => {
         })
     );
 });
+`;
+
+    return new NextResponse(swContent, {
+        headers: {
+            'Content-Type': 'application/javascript',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+        },
+    });
+}

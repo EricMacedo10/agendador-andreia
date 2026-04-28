@@ -8,6 +8,7 @@ export async function GET(
     { params }: { params: any }
 ) {
     try {
+        await getAdminUser();
         const { id } = await params;
         const client = await prisma.client.findUnique({
             where: { id },

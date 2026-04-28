@@ -69,4 +69,10 @@ Sistema de gestão completo para profissionais de beleza, focado em facilidade d
 Desenvolvido com ❤️ para **Andreia**  
 Arquitetura e desenvolvimento: **Eric Macedo**
 
+---
+
+## 📜 Histórico e Legado
+O projeto nasceu de uma interface estética minimalista que evoluiu para este sistema completo.  
+Consulte o [Histórico de Evolução](docs/HISTORY.md) para detalhes sobre a transição do site legado.
+
 **Stack moderna • Layout Premium • Controle Total**

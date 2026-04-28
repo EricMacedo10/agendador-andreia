@@ -10,6 +10,7 @@ export default function DashboardPage() {
     const [stats, setStats] = useState({
         count: 0,
         earnings: 0,
+        userName: 'Usuário',
         nextClient: null as { name: string, service: string, time: string } | null
     });
     const [loading, setLoading] = useState(true);
@@ -31,11 +32,11 @@ export default function DashboardPage() {
         const hour = new Date().getHours();
 
         if (hour >= 0 && hour < 12) {
-            return "Bom dia, Andreia! ☀️";
+            return `Bom dia, ${stats.userName}! ☀️`;
         } else if (hour >= 12 && hour < 18) {
-            return "Boa tarde, Andreia! 🌤️";
+            return `Boa tarde, ${stats.userName}! 🌤️`;
         } else {
-            return "Boa noite, Andreia! 🌙";
+            return `Boa noite, ${stats.userName}! 🌙`;
         }
     };
 

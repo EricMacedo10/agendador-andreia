@@ -21,10 +21,10 @@ export async function GET(request: Request) {
             );
         }
 
-        // Get userId from email
+        // Get userId and role from email
         const user = await prisma.user.findUnique({
             where: { email: session.user.email },
-            select: { id: true }
+            select: { id: true, role: true }
         });
 
         if (!user) {
@@ -41,10 +41,9 @@ export async function GET(request: Request) {
         const startDate = new Date(`${year}-01-01T00:00:00.000Z`);
         const endDate = new Date(`${year}-12-31T23:59:59.999Z`);
 
-        // Fetch appointments for the year
         const appointments = await prisma.appointment.findMany({
             where: {
-                userId: user.id,
+                ...(user.role !== 'ADMIN' ? { userId: user.id } : {}),
                 status: 'COMPLETED',
                 date: {
                     gte: startDate,

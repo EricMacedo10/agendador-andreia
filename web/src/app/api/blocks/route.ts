@@ -2,22 +2,22 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
 
-// Helper function to get user ID from session
-async function getUserIdFromEmail(email: string | null | undefined): Promise<string> {
+// Helper function to get user ID and role from session
+async function getUserIdFromEmail(email: string | null | undefined): Promise<{ id: string, role: string }> {
     if (!email) {
         throw new Error("Email not found in session");
     }
 
     const user = await prisma.user.findUnique({
         where: { email },
-        select: { id: true }
+        select: { id: true, role: true }
     });
 
     if (!user) {
         throw new Error("User not found");
     }
 
-    return user.id;
+    return user;
 }
 
 // GET /api/blocks - List blocks
@@ -31,13 +31,13 @@ export async function GET(request: Request) {
             );
         }
 
-        const userId = await getUserIdFromEmail(session.user.email);
+        const user = await getUserIdFromEmail(session.user.email);
         const { searchParams } = new URL(request.url);
         const start = searchParams.get('start');
         const end = searchParams.get('end');
 
         const where: any = {
-            createdBy: userId
+            ...(user.role !== 'ADMIN' ? { createdBy: user.id } : {})
         };
 
         if (start) {
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const userId = await getUserIdFromEmail(session.user.email);
+        const user = await getUserIdFromEmail(session.user.email);
         const body = await request.json();
         const { startDate, endDate, blockType, startTime, endTime, reason } = body;
 
@@ -151,7 +151,7 @@ export async function POST(request: Request) {
             const conflictEnd   = new Date(endDate   + 'T23:59:59.999Z');
 
             const conflicts = await checkAppointmentConflicts(
-                userId,
+                user.id,
                 conflictStart,
                 conflictEnd,
                 blockType,
@@ -195,7 +195,7 @@ export async function POST(request: Request) {
                 startTime: blockType === 'PARTIAL' ? startTime : null,
                 endTime: blockType === 'PARTIAL' ? endTime : null,
                 reason,
-                createdBy: userId
+                createdBy: user.id
             }
         });
 

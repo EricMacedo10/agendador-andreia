@@ -1,0 +1,13 @@
+# Gitleaks configuration for Agendador Andreia
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''node_modules''',
+    '''\.next''',
+    '''package-lock\.json''',
+    '''public/sw\.js''', # Legacy file (about to be deleted)
+    '''docs/history/legacy-site/prod\.css'''
+]
+
+[rules]
+# Add custom rules here if needed

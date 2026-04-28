@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { getAdminUser } from "@/lib/user-helper";
 
 export async function GET() {
     try {
+        await getAdminUser();
         const clients = await prisma.client.findMany({
             orderBy: { name: "asc" },
             include: { credits: { include: { service: true } } }
@@ -18,6 +20,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
     try {
+        await getAdminUser();
         const body = await request.json();
         const { name, phone } = body;
 

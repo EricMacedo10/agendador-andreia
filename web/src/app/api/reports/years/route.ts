@@ -17,10 +17,10 @@ export async function GET() {
             );
         }
 
-        // Get userId from email
+        // Get userId and role from email
         const user = await prisma.user.findUnique({
             where: { email: session.user.email },
-            select: { id: true }
+            select: { id: true, role: true }
         });
 
         if (!user) {
@@ -33,7 +33,7 @@ export async function GET() {
         // Fetch all completed appointments
         const appointments = await prisma.appointment.findMany({
             where: {
-                userId: user.id,
+                ...(user.role !== 'ADMIN' ? { userId: user.id } : {}),
                 status: 'COMPLETED'
             },
             select: {

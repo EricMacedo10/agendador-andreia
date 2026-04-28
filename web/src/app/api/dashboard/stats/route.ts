@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 import { startOfDay, endOfDay } from "date-fns"
+import { auth } from "@/auth"
 
 export async function GET() {
     // Use America/Sao_Paulo timezone for day boundaries
@@ -23,6 +24,24 @@ export async function GET() {
     const start = new Date(Date.UTC(year, month, day, 3, 0, 0, 0));
     const end = new Date(Date.UTC(year, month, day + 1, 2, 59, 59, 999));
 
+    // Authentication check
+    const session = await auth();
+    if (!session?.user?.email) {
+        return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+    }
+
+    // Get user role and id
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true, role: true }
+    });
+
+    if (!user) {
+        return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
+    }
+
+    const whereFilter = user.role === 'ADMIN' ? {} : { userId: user.id };
+
     // 1. Count Appointments Today
     const count = await prisma.appointment.count({
         where: {
@@ -30,7 +49,8 @@ export async function GET() {
                 gte: start,
                 lte: end
             },
-            status: { not: "CANCELLED" }
+            status: { not: "CANCELLED" },
+            ...whereFilter
         }
     })
 
@@ -41,7 +61,8 @@ export async function GET() {
                 gte: start,
                 lte: end
             },
-            status: { not: "CANCELLED" }
+            status: { not: "CANCELLED" },
+            ...whereFilter
         },
         include: {
             services: {
@@ -94,7 +115,8 @@ export async function GET() {
             },
             status: {
                 in: ['PENDING', 'CONFIRMED']
-            }
+            },
+            ...whereFilter
         },
         orderBy: {
             date: 'asc'
@@ -112,6 +134,7 @@ export async function GET() {
     return NextResponse.json({
         count,
         earnings: totalEarnings,
+        userName: user.name?.split(' ')[0] || 'Usuário',
         nextClient: nextAppointment ? {
             name: nextAppointment.client.name,
             service: nextAppointment.services.map((s) => s.service.name).join(', '),
