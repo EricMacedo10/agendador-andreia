@@ -39,4 +39,21 @@ O arquivo `prod.css` legado continha definições críticas de:
 - Sombras suaves em cards e botões.
 - Transições de hover para feedback visual imediato.
 
-*Documento atualizado em: 28/04/2026*
+---
+
+## 🛡️ 3. A Fase de Segurança e "Blindagem Nuclear" (Abril/2026)
+Após estabelecer a plataforma, focamos em um projeto massivo de Hardening para proteger a infraestrutura e os dados comerciais da Andreia.
+
+### Medidas de Segurança Implementadas:
+- **Git Hooks e Prevenção de Vazamentos**: Implementamos o `Husky` e o `Gitleaks` locais para impedir que qualquer senha ou credencial sensível fosse acidentalmente comitada no repositório GitHub.
+- **Proteção de Segredos**: Migramos as chaves estáticas do Firebase e do banco de dados para variáveis de ambiente "Hidden/Sensitive" exclusivamente dentro do painel da **Vercel**.
+- **Senhas Criptografadas**: Todos os usuários do banco (Prisma/Supabase) agora possuem senhas hasheadas via `bcryptjs`. As senhas reais são ilegíveis até para o banco.
+- **Workflow de Deploy Seguro**: Estabelecemos o `safe-deploy.md`, garantindo que os deploys de produção ocorram apenas após o build local (`npx vercel --prod`) não apresentar falhas.
+
+### Reestruturação de Permissões (Visibilidade Global):
+Originalmente, a arquitetura de banco de dados vinculava cada agendamento ao usuário que o criou, o que "escondia" os dados quando outros administradores tentavam acessar. 
+- Refatoramos a lógica de autorização (`user-helper.ts` e rotas de API).
+- Implementamos o **"Poder de Administrador Dinâmico"**: Qualquer usuário com a `role === 'ADMIN'` (como o `admin@eric.com` e `admin@deia.com`) agora possui visão panorâmica de todo o sistema.
+- A API de relatórios (`/api/reports/...`), o fluxo de agenda (`/api/appointments`), os bloqueios (`/api/blocks`) e as estatísticas do Dashboard passaram a ignorar filtros restritivos para os administradores, permitindo a gestão em conjunto sem perda de histórico.
+
+*Documento atualizado e auditado em: 28/04/2026*
